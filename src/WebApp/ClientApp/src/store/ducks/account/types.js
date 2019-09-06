@@ -1,5 +1,4 @@
-const CREATE_ACCOUNT = "account/CREATE_ACCOUNT";
-
 export default {
-    CREATE_ACCOUNT
+    CREATE_ACCOUNT: "account/CREATE_ACCOUNT",
+    LOAD_ACCOUNT_SUCCESS: "account/LOAD_ACCOUNT_SUCCESS"
 }

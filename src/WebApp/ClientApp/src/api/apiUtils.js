@@ -1,3 +1,6 @@
+
+export const baseUrl = "http://localhost:3001";
+
 export async function handleResponse(response) {
   if (response.ok) return response.json();
   if (response.status === 400) {
