@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 
 import './custom.css'
+import AccountPage from './components/AccountPage';
 
 export default class App extends Component {
   static displayName = App.name;
 
   render () {
     return (
-        <span>Hello, world!</span>
+        <AccountPage />
     );
   }
 }
