@@ -1,14 +1,21 @@
-import React, { Component } from 'react';
+import React from "react";
+import { Router } from "@reach/router";
+import Header from "./components/layout/Header";
+import HomePage from "./components/home/HomePage";
+import AccountPage from "./components/accounts/AccountPage";
+import PageNotFound from "./PageNotFound";
 
-import './custom.css'
-import AccountPage from './components/accounts/AccountPage';
+import "./custom.css";
 
-export default class App extends Component {
-  static displayName = App.name;
+const App = () => (
+  <div>
+    <Header />
+    <Router>
+      <HomePage exact path="/" />
+      <AccountPage path="/accounts" />
+      <PageNotFound default />
+    </Router>
+  </div>
+);
 
-  render () {
-    return (
-        <AccountPage />
-    );
-  }
-}
+export default App;

@@ -10,6 +10,7 @@
     "react-scripts": "^3.1.1",
     "reactstrap": "^8.0.1",
     "redux": "^4.0.4",
+    "@reach/router": "1.2.1",
     "react-router-dom": "5.0.1",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.0"
