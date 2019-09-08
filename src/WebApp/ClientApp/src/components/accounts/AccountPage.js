@@ -1,9 +1,19 @@
 import React from "react";
 import { accountHooks } from "../../store/ducks/account";
+import { institutionHooks } from "../../store/ducks/institution";
 import AccountList from "./AccountList";
 
 function AccountPage() {
-  const accounts = accountHooks.useAccounts();
+  const institutions = institutionHooks.useInstitutions();
+  const rawAccounts = accountHooks.useAccounts();
+  const accounts = institutions.length
+    ? rawAccounts.map(account => {
+        return {
+            ...account,
+            institutionName: institutions.find(i => i.id === account.institutionId).title
+        };
+      })
+    : [];
 
   return (
     <>

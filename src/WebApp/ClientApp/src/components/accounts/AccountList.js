@@ -6,7 +6,8 @@ const AccountList = ({ accounts }) => (
     <thead>
       <tr>
         <th />
-        <th>Title</th>
+        <th>Name</th>
+        <th>Institution</th>
       </tr>
     </thead>
     <tbody>
@@ -24,6 +25,7 @@ const AccountList = ({ accounts }) => (
             <td>
               <Link to={"/account/" + account.slug}>{account.title}</Link>
             </td>
+            <td>{account.institutionName}</td>
           </tr>
         );
       })}
