@@ -1,10 +1,8 @@
 import types from './types';
 
-const INITIAL_STATE = [];
-
 const loadInstitutionsSuccess = ({ institutions }) => institutions;
 
-export default function institutionReducer (state = INITIAL_STATE, { type, ...args }) {
+export default function institutionReducer (state = initialState.institutions, { type, ...args }) {
     switch (type) {
         case types.LOAD_INSTITUTION_SUCCESS:
             return loadInstitutionsSuccess(args);
