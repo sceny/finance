@@ -22,12 +22,12 @@ const accounts = [
 const institutions = [
     {
       id: 1,
-      title: "RBC",
+      name: "RBC",
       slug: "rbc"
     },
     {
         id: 2,
-        title: "CapitalOne",
+        name: "CapitalOne",
         slug: "capitalone"
     }
 ];

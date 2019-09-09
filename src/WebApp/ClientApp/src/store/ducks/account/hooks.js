@@ -25,7 +25,6 @@ function useAccounts() {
   return accounts;
 }
 
-
 export default {
     useAccounts
 }

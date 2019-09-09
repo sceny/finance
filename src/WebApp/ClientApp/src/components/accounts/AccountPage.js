@@ -4,13 +4,13 @@ import { institutionHooks } from "../../store/ducks/institution";
 import AccountList from "./AccountList";
 
 function AccountPage() {
-  const institutions = institutionHooks.useInstitutions();
-  const rawAccounts = accountHooks.useAccounts();
-  const accounts = institutions.length
-    ? rawAccounts.map(account => {
+  const institutionsSource = institutionHooks.useInstitutions();
+  const accountsSource = accountHooks.useAccounts();
+  const accounts = institutionsSource.length
+    ? accountsSource.map(account => {
         return {
             ...account,
-            institutionName: institutions.find(i => i.id === account.institutionId).title
+            institutionName: institutionsSource.find(i => i.id === account.institutionId).name
         };
       })
     : [];

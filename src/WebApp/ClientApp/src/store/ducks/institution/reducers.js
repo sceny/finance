@@ -1,4 +1,5 @@
 import types from './types';
+import initialState from '../initialState';
 
 const loadInstitutionsSuccess = ({ institutions }) => institutions;
 
