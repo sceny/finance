@@ -1,5 +1,5 @@
 import reducer from './reducers';
 
-export { default as institutionHooks } from "./hooks";
+export { default as institutionOperations } from './operations';
 
 export default reducer;

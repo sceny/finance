@@ -1,9 +1,9 @@
-import React from "react";
-import { Link } from "@reach/router";
-import PropTypes from "prop-types";
+import React from 'react';
+import { Link } from '@reach/router';
+import PropTypes from 'prop-types';
 
 const AccountList = ({ accounts }) => (
-  <table className="table">
+  <table className='table'>
     <thead>
       <tr>
         <th>Name</th>
@@ -26,7 +26,7 @@ const AccountList = ({ accounts }) => (
 );
 
 AccountList.propTypes = {
-    accounts: PropTypes.object.isRequired
-}
+  accounts: PropTypes.array.isRequired
+};
 
 export default AccountList;

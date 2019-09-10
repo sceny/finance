@@ -1,13 +1,11 @@
 import types from './types';
 
-export function createAccount(account) {
-    return { type: types.CREATE_ACCOUNT, account };
-}
 export function loadAccountsSuccess(accounts) {
-    return { type: types.LOAD_ACCOUNT_SUCCESS, accounts };
+  return { type: types.LOAD_ACCOUNT_SUCCESS, accounts };
 }
-
-export default {
-    createAccount,
-    loadAccountsSuccess
+export function updateAccountSuccess(account) {
+  return { type: types.UPDATE_ACCOUNT_SUCCESS, account };
+}
+export function createAccountSuccess(account) {
+  return { type: types.CREATE_ACCOUNT_SUCCESS, account };
 }

@@ -1,5 +1,8 @@
 {
     "prettier.singleQuote": true,
     "prettier.jsxBracketSameLine": true,
-    "prettier.proseWrap": "always"
+    "prettier.proseWrap": "always",
+    "editor.formatOnSave": true,
+    "prettier.jsxSingleQuote": true,
+    "editor.formatOnType": true
 }

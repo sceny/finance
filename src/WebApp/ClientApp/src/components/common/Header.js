@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "@reach/router";
+import React from 'react';
+import { Link } from '@reach/router';
 
 const NavLink = props => (
   <Link
@@ -9,7 +9,7 @@ const NavLink = props => (
       // anchor element's props
       return {
         style: {
-          color: isCurrent ? "#F15B2A" : ""
+          color: isCurrent ? '#F15B2A' : ''
         }
       };
     }}
@@ -19,8 +19,7 @@ const NavLink = props => (
 const Header = () => {
   return (
     <nav>
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="accounts">Accounts</NavLink>
+      <NavLink to='/'>Home</NavLink> | <NavLink to='accounts'>Accounts</NavLink>
     </nav>
   );
 };

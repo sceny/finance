@@ -1,31 +1,52 @@
-import React, { useState } from "react";
-import { accountHooks } from "../../store/ducks/account";
-import { institutionHooks } from "../../store/ducks/institution";
-import AccountForm from "./AccountForm";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import {
+  loadAccounts,
+  saveAccount
+} from '../../store/ducks/account/operations';
+import { loadInstitutions } from '../../store/ducks/institution/operations';
+import AccountForm from './AccountForm';
+import PropTypes from 'prop-types';
 
-function ManageAccountPage({ ...props }) {
+function ManageAccountPage({
+  accounts,
+  institutions,
+  loadInstitutions,
+  loadAccounts,
+  saveAccount,
+  history,
+  ...props
+}) {
   const [account, setAccount] = useState({ ...props.account });
-  const [errors, setErrors] = useState({ ...props.errors });
-  const institutions = institutionHooks.useInstitutions();
-  const accountsSource = accountHooks.useAccounts();
-  const accounts = institutions.length
-    ? accountsSource.map(account => {
-        return {
-          ...account,
-          institutionName: institutions.find(
-            i => i.id === account.institutionId
-          ).name
-        };
-      })
-    : [];
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (accounts.length === 0) {
+      loadAccounts().catch(error => {
+        alert('Loading accounts failed' + error);
+      });
+    } else {
+      setAccount({ ...props.account });
+    }
+
+    if (institutions.length === 0) {
+      loadInstitutions().catch(error => {
+        alert('Loading institutions failed' + error);
+      });
+    }
+  }, [props.account, accounts, institutions, loadAccounts, loadInstitutions]);
 
   function handleChange(event) {
     const { name, value } = event.target;
     setAccount(prevAccount => ({
       ...prevAccount,
-      [name]: name === "institutionId" ? parseInt(value, 10) : value
+      [name]: name === 'institutionId' ? parseInt(value, 10) : value
     }));
+  }
+
+  function handleSave(event) {
+    event.preventDefault();
+    saveAccount(account);
   }
 
   return (
@@ -34,13 +55,37 @@ function ManageAccountPage({ ...props }) {
       errors={errors}
       institutions={institutions}
       onChange={handleChange}
+      onSave={handleSave}
     />
   );
 }
 
 ManageAccountPage.propTypes = {
-    account: PropTypes.object.isRequired,
-    errors: PropTypes.array.isRequired
+  institutions: PropTypes.array.isRequired,
+  accounts: PropTypes.array.isRequired,
+  loadAccounts: PropTypes.func.isRequired,
+  loadInstitutions: PropTypes.func.isRequired,
+  saveAccount: PropTypes.func.isRequired
+};
+
+export function getAccountBySlug(accounts, slug) {
+  return accounts.find(account => account.slug === slug) || null;
 }
 
-export default ManageAccountPage;
+function mapStateToProps(state, ownProps) {
+  return {
+    accounts: state.accounts,
+    institutions: state.institutions
+  };
+}
+
+const mapDispatchToProps = {
+  loadAccounts,
+  loadInstitutions,
+  saveAccount
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ManageAccountPage);
