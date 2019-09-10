@@ -62,14 +62,11 @@
     }
   },
   "scripts": {
-    "start": "run-p start:dev start:api",
-    "start:dev": "rimraf ./build && react-scripts start",
+    "start": "rimraf ./build && react-scripts start",
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src/",
-    "prestart:api": "node tools/createMockDb.js",
-    "start:api": "node tools/apiServer.js"
+    "lint": "eslint ./src/"
   },
   "browserslist": {
     "production": [

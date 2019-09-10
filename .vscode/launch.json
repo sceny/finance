@@ -14,17 +14,31 @@
             "cwd": "${workspaceFolder}/src/WebApp",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
-            "serverReadyAction": {
-                "action": "debugWithChrome",
-                "pattern": "^\\s*Now listening on:\\s+(https?://\\S+)"
-            },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "DOTNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:5001",
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "url": "https://localhost:5001",
+            "webRoot": "${workspaceFolder}",
+            "sourceMapPathOverrides": { "/mnt/c/*": "C:/*" },
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+                "${workspaceFolder}/src/WebApp/ClientApp/node_modules/**/*.js"
+            ]
         }
-
+    ],
+    "compounds": [
+        {
+            "name": "App Launch",
+            "configurations": [".NET Core Launch (web)", "Launch Chrome"]
+        }
     ]
 }

@@ -1,5 +1,5 @@
 
-export const baseUrl = "http://localhost:3001";
+export const baseUrl = "/api";
 
 export async function handleResponse(response) {
   if (response.ok) return response.json();

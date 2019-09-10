@@ -20,11 +20,11 @@ const AccountForm = ({
         </div>
       )}
       <TextInput
-        name="title"
-        label="Title"
-        value={account.title}
+        name="name"
+        label="Name"
+        value={account.name}
         onChange={onChange}
-        error={errors.title}
+        error={errors.name}
       />
 
       <SelectInput

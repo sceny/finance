@@ -14,7 +14,7 @@ const AccountList = ({ accounts }) => (
         return (
           <tr key={account.id}>
             <td>
-              <Link to={`/account/${account.slug}`}>{account.title}</Link>
+              <Link to={`/account/${account.slug}`}>{account.name}</Link>
             </td>
             <td>{account.institutionName}</td>
           </tr>
