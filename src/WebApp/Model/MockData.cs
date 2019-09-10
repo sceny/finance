@@ -7,9 +7,9 @@ namespace WebApp.Model
     {
         private static readonly List<Account> _accounts = new List<Account>
         {
-            new Account { Id = 1, Name = "RBC 3132", Slug = "rbc-3132", InstitutionId = 1, Category = "Any" },
-            new Account { Id = 2, Name = "RBC 5445", Slug = "rbc-5445", InstitutionId = 1, Category = "Any" },
-            new Account { Id = 3, Name = "CapitalOne xxx9999", Slug = "capitalone-xxx9999", InstitutionId = 2, Category = "Any" },
+            new Account { Id = 1, Name = "RBC 3132", InstitutionId = 1, Type = "Any" },
+            new Account { Id = 2, Name = "RBC 5445", InstitutionId = 1, Type = "Any" },
+            new Account { Id = 3, Name = "CapitalOne xxx9999", InstitutionId = 2, Type = "Any" },
         };
 
 
@@ -20,10 +20,14 @@ namespace WebApp.Model
         };
 
 
-        internal static void AddAccount(Account account) => _accounts.Add(account);
-        internal static bool TryUpdateAccount(Account account)
+        internal static void AddAccount(Account account)
         {
-            var index = _accounts.FindIndex(0, _accounts.Count, a => a.Id == account.Id);
+            account.Id = _accounts.Count + 1;
+            _accounts.Add(account);
+        }
+        internal static bool TryUpdateAccount(int id, Account account)
+        {
+            var index = _accounts.FindIndex(0, _accounts.Count, a => a.Id == id);
             if (index == -1)
             {
                 return false;

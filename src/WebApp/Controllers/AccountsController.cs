@@ -20,12 +20,12 @@ namespace WebApp.Controllers
             return Ok(account);
         }
 
-        [HttpPut]
-        public IActionResult Put([FromBody]Account account)
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody]Account account)
         {
             if (!ModelState.IsValid || account == null)
                 return BadRequest();
-            if (!MockData.TryUpdateAccount(account))
+            if (!MockData.TryUpdateAccount(id, account))
                 return NotFound();
             return Ok(account);
         }

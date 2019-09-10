@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
+import { Redirect } from '@reach/router';
 import { loadAccounts } from '../../store/ducks/account/operations';
 import { loadInstitutions } from '../../store/ducks/institution/operations';
 import AccountList from './AccountList';
@@ -11,6 +12,8 @@ function AccountsPage({
   loadAccounts,
   loadInstitutions
 }) {
+  const [redirectToAddCoursePage, setRedirectToAddCoursePage] = useState(false);
+
   useEffect(() => {
     if (accounts.length === 0) {
       loadAccounts().catch(error => {
@@ -27,6 +30,13 @@ function AccountsPage({
 
   return (
     <>
+      {redirectToAddCoursePage && <Redirect to='/account' />}
+      <button
+        style={{ marginBottom: 20 }}
+        className='btn btn-primary add-course'
+        onClick={() => setRedirectToAddCoursePage(true)}>
+        Add Account
+      </button>
       <h2>Accounts</h2>
       <AccountList accounts={accounts} />
     </>

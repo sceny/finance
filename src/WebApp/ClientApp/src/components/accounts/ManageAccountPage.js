@@ -14,7 +14,7 @@ function ManageAccountPage({
   loadInstitutions,
   loadAccounts,
   saveAccount,
-  history,
+  navigate,
   ...props
 }) {
   const [account, setAccount] = useState({ ...props.account });
@@ -46,7 +46,9 @@ function ManageAccountPage({
 
   function handleSave(event) {
     event.preventDefault();
-    saveAccount(account);
+    saveAccount(account).then(() => {
+      navigate('/accounts');
+    });
   }
 
   return (
@@ -61,11 +63,13 @@ function ManageAccountPage({
 }
 
 ManageAccountPage.propTypes = {
-  institutions: PropTypes.array.isRequired,
+  account: PropTypes.object.isRequired,
   accounts: PropTypes.array.isRequired,
+  institutions: PropTypes.array.isRequired,
   loadAccounts: PropTypes.func.isRequired,
   loadInstitutions: PropTypes.func.isRequired,
-  saveAccount: PropTypes.func.isRequired
+  saveAccount: PropTypes.func.isRequired,
+  navigate: PropTypes.func.isRequired
 };
 
 export function getAccountBySlug(accounts, slug) {
@@ -73,7 +77,13 @@ export function getAccountBySlug(accounts, slug) {
 }
 
 function mapStateToProps(state, ownProps) {
+  const slug = ownProps.slug;
+  const account =
+    slug && state.accounts.length
+      ? getAccountBySlug(state.accounts, slug)
+      : { name: '', slug: '', institutionId: 0, category: '' };
   return {
+    account,
     accounts: state.accounts,
     institutions: state.institutions
   };
