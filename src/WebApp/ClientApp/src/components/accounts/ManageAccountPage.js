@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { accountHooks } from "../../store/ducks/account";
 import { institutionHooks } from "../../store/ducks/institution";
 import AccountForm from "./AccountForm";
+import PropTypes from "prop-types";
 
 function ManageAccountPage({ ...props }) {
   const [account, setAccount] = useState({ ...props.account });
@@ -35,6 +36,11 @@ function ManageAccountPage({ ...props }) {
       onChange={handleChange}
     />
   );
+}
+
+ManageAccountPage.propTypes = {
+    account: PropTypes.object.isRequired,
+    errors: PropTypes.array.isRequired
 }
 
 export default ManageAccountPage;

@@ -5,11 +5,10 @@ import HomePage from "./components/home/HomePage";
 import AccountPage from "./components/accounts/AccountPage";
 import PageNotFound from "./PageNotFound";
 
-import "./custom.css";
 import ManageAccountPage from "./components/accounts/ManageAccountPage";
 
 const App = () => (
-  <div>
+  <div className="container-fluid">
     <Header />
     <Router>
       <HomePage exact path="/" />

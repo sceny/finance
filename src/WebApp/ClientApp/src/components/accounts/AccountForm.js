@@ -1,5 +1,5 @@
 import React from "react";
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import TextInput from "../common/TextInput";
 import SelectInput from "../common/SelectInput";
 
@@ -55,13 +55,13 @@ const AccountForm = ({
   );
 };
 
-// AccountForm.propTypes = {
-//   institutions: PropTypes.array.isRequired,
-//   account: PropTypes.object.isRequired,
-//   errors: PropTypes.object,
-//   onSave: PropTypes.func.isRequired,
-//   onChange: PropTypes.func.isRequired,
-//   saving: PropTypes.bool
-// };
+AccountForm.propTypes = {
+  institutions: PropTypes.array.isRequired,
+  account: PropTypes.object.isRequired,
+  errors: PropTypes.object,
+  onSave: PropTypes.func.isRequired,
+  onChange: PropTypes.func.isRequired,
+  saving: PropTypes.bool
+};
 
 export default AccountForm;
