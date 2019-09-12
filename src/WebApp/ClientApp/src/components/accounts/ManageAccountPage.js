@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import {
-  loadAccounts,
-  saveAccount
-} from '../../store/ducks/account/operations';
-import { loadInstitutions } from '../../store/ducks/institution/operations';
+import { loadAccounts, saveAccount } from '../../store/account';
+import { loadInstitutions } from '../../store/institution';
 import AccountForm from './AccountForm';
 import PropTypes from 'prop-types';
 

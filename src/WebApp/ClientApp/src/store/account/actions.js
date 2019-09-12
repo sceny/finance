@@ -1,9 +1,14 @@
-import accountApi from '../../../api/accountApi';
-import {
-  loadAccountsSuccess,
-  updateAccountSuccess,
-  createAccountSuccess
-} from './actions';
+import types from './types';
+import accountApi from '../../api/accountApi';
+function loadAccountsSuccess(accounts) {
+  return { type: types.LOAD_ACCOUNT_SUCCESS, accounts };
+}
+function updateAccountSuccess(account) {
+  return { type: types.UPDATE_ACCOUNT_SUCCESS, account };
+}
+function createAccountSuccess(account) {
+  return { type: types.CREATE_ACCOUNT_SUCCESS, account };
+}
 
 export function loadAccounts() {
   return function(dispatch) {
@@ -33,8 +38,3 @@ export function saveAccount(account) {
       });
   };
 }
-
-export default {
-  loadAccounts,
-  saveAccount
-};

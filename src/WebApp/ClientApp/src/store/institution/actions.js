@@ -1,5 +1,9 @@
-import institutionApi from '../../../api/institutionApi';
-import { loadInstitutionsSuccess } from './actions';
+import types from './types';
+import institutionApi from '../../api/institutionApi';
+
+function loadInstitutionsSuccess(institutions) {
+  return { type: types.LOAD_INSTITUTION_SUCCESS, institutions };
+}
 
 export function loadInstitutions() {
   return function(dispatch) {
@@ -13,7 +17,3 @@ export function loadInstitutions() {
       });
   };
 }
-
-export default {
-  loadInstitutions
-};
