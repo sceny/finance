@@ -1,4 +1,5 @@
 export default {
-    accounts: [],
-    institutions: []
-}
+  accounts: [],
+  institutions: [],
+  apiCallsInProgress: 0
+};

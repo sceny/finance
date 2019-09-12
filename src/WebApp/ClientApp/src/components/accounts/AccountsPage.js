@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { PropTypes } from 'prop-types';
 import { Redirect } from '@reach/router';
+import Spinner from '../common/Spinner';
 import { loadAccounts } from '../../store/account';
 import { loadInstitutions } from '../../store/institution';
 import AccountList from './AccountList';
@@ -10,7 +11,8 @@ function AccountsPage({
   accounts,
   institutions,
   loadAccounts,
-  loadInstitutions
+  loadInstitutions,
+  loading
 }) {
   const [redirectToAddCoursePage, setRedirectToAddCoursePage] = useState(false);
 
@@ -26,19 +28,25 @@ function AccountsPage({
         alert('Loading institutions failed' + error);
       });
     }
-  }, [accounts, institutions, loadAccounts, loadInstitutions]);
+  }, []);
 
   return (
     <>
-      {redirectToAddCoursePage && <Redirect to='/account' />}
-      <button
-        style={{ marginBottom: 20 }}
-        className='btn btn-primary add-course'
-        onClick={() => setRedirectToAddCoursePage(true)}>
-        Add Account
-      </button>
+      {redirectToAddCoursePage && <Redirect to="/account" />}
       <h2>Accounts</h2>
-      <AccountList accounts={accounts} />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <>
+          <button
+            style={{ marginBottom: 20 }}
+            className="btn btn-primary add-course"
+            onClick={() => setRedirectToAddCoursePage(true)}>
+            Add Account
+          </button>
+          <AccountList accounts={accounts} />
+        </>
+      )}
     </>
   );
 }
@@ -47,7 +55,8 @@ AccountsPage.propTypes = {
   institutions: PropTypes.array.isRequired,
   accounts: PropTypes.array.isRequired,
   loadAccounts: PropTypes.func.isRequired,
-  loadInstitutions: PropTypes.func.isRequired
+  loadInstitutions: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 function mapStateToProps(state) {
@@ -63,7 +72,8 @@ function mapStateToProps(state) {
               ).name
             };
           }),
-    institutions: state.institutions
+    institutions: state.institutions,
+    loading: state.apiCallsInProgress > 0
   };
 }
 

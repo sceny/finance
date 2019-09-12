@@ -3,10 +3,12 @@ import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
 import thunk from 'redux-thunk';
 import accounts from './account';
 import institutions from './institution';
+import apiCallsInProgress from './apiStatus';
 
 export const rootReducer = combineReducers({
   accounts,
-  institutions
+  institutions,
+  apiCallsInProgress
 });
 
 export default function configureStore(initialState) {

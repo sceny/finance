@@ -4,6 +4,8 @@ import { loadAccounts, saveAccount } from '../../store/account';
 import { loadInstitutions } from '../../store/institution';
 import AccountForm from './AccountForm';
 import PropTypes from 'prop-types';
+import Spinner from '../common/Spinner';
+import { toast } from 'react-toastify';
 
 function ManageAccountPage({
   accounts,
@@ -16,6 +18,7 @@ function ManageAccountPage({
 }) {
   const [account, setAccount] = useState({ ...props.account });
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (accounts.length === 0) {
@@ -43,18 +46,23 @@ function ManageAccountPage({
 
   function handleSave(event) {
     event.preventDefault();
+    setSaving(true);
     saveAccount(account).then(() => {
+      toast.success(`Account ${account.name} saved`);
       navigate('/accounts');
     });
   }
 
-  return (
+  return accounts.length === 0 || institutions.length === 0 ? (
+    <Spinner />
+  ) : (
     <AccountForm
       account={account}
       errors={errors}
       institutions={institutions}
       onChange={handleChange}
       onSave={handleSave}
+      saving={saving}
     />
   );
 }
@@ -73,12 +81,14 @@ export function getAccountBySlug(accounts, slug) {
   return accounts.find(account => account.slug === slug) || null;
 }
 
+const newAccount = { name: '', slug: '', institutionId: 0, category: '' };
+
 function mapStateToProps(state, ownProps) {
   const slug = ownProps.slug;
   const account =
     slug && state.accounts.length
       ? getAccountBySlug(state.accounts, slug)
-      : { name: '', slug: '', institutionId: 0, category: '' };
+      : newAccount;
   return {
     account,
     accounts: state.accounts,
