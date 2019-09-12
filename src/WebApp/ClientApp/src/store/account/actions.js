@@ -1,6 +1,6 @@
 import types from './types';
 import accountApi from '../../api/accountApi';
-import { beginApiCall } from '../apiStatus';
+import { beginApiCall, apiCallError } from '../apiStatus';
 
 function loadAccountsSuccess(accounts) {
   return { type: types.LOAD_ACCOUNT_SUCCESS, accounts };
@@ -21,6 +21,7 @@ export function loadAccounts() {
         dispatch(loadAccountsSuccess(accounts));
       })
       .catch(error => {
+        dispatch(apiCallError());
         throw error;
       });
   };
@@ -38,6 +39,7 @@ export function saveAccount(account) {
           : dispatch(createAccountSuccess(savedAccount));
       })
       .catch(error => {
+        dispatch(apiCallError());
         throw error;
       });
   };

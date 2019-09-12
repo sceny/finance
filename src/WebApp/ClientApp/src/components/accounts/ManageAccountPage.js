@@ -47,10 +47,15 @@ function ManageAccountPage({
   function handleSave(event) {
     event.preventDefault();
     setSaving(true);
-    saveAccount(account).then(() => {
-      toast.success(`Account ${account.name} saved`);
-      navigate('/accounts');
-    });
+    saveAccount(account)
+      .then(() => {
+        toast.success(`Account ${account.name} saved`);
+        navigate('/accounts');
+      })
+      .catch(error => {
+        setSaving(false);
+        setErrors({ onSave: JSON.parse(error.message) });
+      });
   }
 
   return accounts.length === 0 || institutions.length === 0 ? (

@@ -14,24 +14,29 @@ const AccountForm = ({
   return (
     <form onSubmit={onSave}>
       <h2>{account.id ? 'Edit' : 'Add'} Account</h2>
-      {errors.onSave && (
-        <div className='alert alert-danger' role='alert'>
-          {errors.onSave}
+      {errors.onSave && errors.onSave.errors && (
+        <div className="alert alert-danger" role="alert">
+          {errors.onSave.title}
+          <ul>
+            {Object.keys(errors.onSave.errors).map(key => (
+              <li key={key}>{errors.onSave.errors[key][0]}</li>
+            ))}
+          </ul>
         </div>
       )}
       <TextInput
-        name='name'
-        label='Name'
+        name="name"
+        label="Name"
         defaultValue={account.name}
         onChange={onChange}
         error={errors.name}
       />
 
       <SelectInput
-        name='institutionId'
-        label='Institution'
+        name="institutionId"
+        label="Institution"
         value={account.institutionId || ''}
-        defaultOption='Select Institution'
+        defaultOption="Select Institution"
         options={institutions.map(institution => ({
           value: institution.id,
           text: institution.name
@@ -41,14 +46,14 @@ const AccountForm = ({
       />
 
       <TextInput
-        name='type'
-        label='Type'
+        name="type"
+        label="Type"
         defaultValue={account.type}
         onChange={onChange}
         error={errors.type}
       />
 
-      <button type='submit' disabled={saving} className='btn btn-primary'>
+      <button type="submit" disabled={saving} className="btn btn-primary">
         {saving ? 'Saving...' : 'Save'}
       </button>
     </form>

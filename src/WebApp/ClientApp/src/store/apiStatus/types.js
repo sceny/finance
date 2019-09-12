@@ -1,3 +1,4 @@
 export default {
-  BEGIN_API_CALL: 'common/BEGIN_API_CALL'
+  BEGIN_API_CALL: 'apiStatus/BEGIN_API_CALL',
+  API_CALL_ERROR: 'apiStatus/API_CALL_ERROR'
 };

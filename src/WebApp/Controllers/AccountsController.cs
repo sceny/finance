@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.Model;
 
@@ -14,8 +15,10 @@ namespace WebApp.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Account account)
         {
-            if (!ModelState.IsValid || account == null)
-                return BadRequest();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            else if (account == null)
+                return BadRequest("The account must have a value.");
             MockData.AddAccount(account);
             return Ok(account);
         }
@@ -23,8 +26,10 @@ namespace WebApp.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody]Account account)
         {
-            if (!ModelState.IsValid || account == null)
-                return BadRequest();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            else if (account == null)
+                return BadRequest("The account must have a value.");
             if (!MockData.TryUpdateAccount(id, account))
                 return NotFound();
             return Ok(account);

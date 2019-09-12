@@ -1,6 +1,6 @@
 import types from './types';
 import institutionApi from '../../api/institutionApi';
-import { beginApiCall } from '../apiStatus';
+import { beginApiCall, apiCallError } from '../apiStatus';
 
 function loadInstitutionsSuccess(institutions) {
   return { type: types.LOAD_INSTITUTION_SUCCESS, institutions };
@@ -15,6 +15,7 @@ export function loadInstitutions() {
         dispatch(loadInstitutionsSuccess(institutions));
       })
       .catch(error => {
+        dispatch(apiCallError());
         throw error;
       });
   };
