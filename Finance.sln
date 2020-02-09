@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DE360135-D699-430F-9543-F858A67481F0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D89DC7B7-F432-447A-AC94-F7DDAC276B2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sceny.Finance.WebApp", "src\WebApp\Sceny.Finance.WebApp.csproj", "{1608A306-2456-44A7-9074-474627874087}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sceny.Finance", "src\Finance\Sceny.Finance.csproj", "{D6AC7762-666F-42B1-A79D-338A64AF055C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,20 +20,20 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1608A306-2456-44A7-9074-474627874087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Debug|x64.Build.0 = Debug|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Debug|x86.Build.0 = Debug|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Release|x64.ActiveCfg = Release|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Release|x64.Build.0 = Release|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Release|x86.ActiveCfg = Release|Any CPU
-		{1608A306-2456-44A7-9074-474627874087}.Release|x86.Build.0 = Release|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Debug|x64.Build.0 = Debug|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Debug|x86.Build.0 = Debug|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Release|x64.ActiveCfg = Release|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Release|x64.Build.0 = Release|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Release|x86.ActiveCfg = Release|Any CPU
+		{D6AC7762-666F-42B1-A79D-338A64AF055C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{1608A306-2456-44A7-9074-474627874087} = {DE360135-D699-430F-9543-F858A67481F0}
+		{D6AC7762-666F-42B1-A79D-338A64AF055C} = {D89DC7B7-F432-447A-AC94-F7DDAC276B2C}
 	EndGlobalSection
 EndGlobal

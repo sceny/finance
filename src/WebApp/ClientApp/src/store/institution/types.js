@@ -1,3 +1,0 @@
-export default {
-    LOAD_INSTITUTION_SUCCESS: "institution/LOAD_INSTITUTION_SUCCESS"
-}
