@@ -1,6 +1,6 @@
 using System;
 
-namespace WebApp
+namespace Sceny.Finance.WebApp
 {
     public class WeatherForecast
     {

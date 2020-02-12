@@ -1,0 +1,7 @@
+{
+  "name": "ClientApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
