@@ -5,6 +5,6 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_DB: postgresdb
-  POSTGRES_USER: postgresadmin
+  POSTGRES_DB: financedb
+  POSTGRES_USER: financeadmin
   POSTGRES_PASSWORD: admin123
