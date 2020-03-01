@@ -13,6 +13,10 @@ spec:
         - name: postgres
           image: postgres:12.2
           imagePullPolicy: "IfNotPresent"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
           ports:
             - containerPort: 5432
           envFrom:
@@ -21,6 +25,7 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgredb
+      activeDeadlineSeconds: 0
       volumes:
         - name: postgredb
           persistentVolumeClaim:
