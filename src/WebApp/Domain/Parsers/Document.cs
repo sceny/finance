@@ -12,6 +12,5 @@ namespace WebApp.Domain.Parsers
         public IAsyncEnumerable<Account> GetAccounts(
             CancellationToken cancellationToken = default)
             => _parser.GetAccountsAsync(cancellationToken);
-
     }
 }
