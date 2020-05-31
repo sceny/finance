@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WebApp.Domain.Parsers.Qif;
 
 namespace WebApp.Domain.Parsers
 {
@@ -24,56 +25,52 @@ namespace WebApp.Domain.Parsers
 
         private string _line;
         private readonly StreamReader _reader;
+        private readonly QifAccountItemFiller _itemFiller;
         private readonly Stream _content;
 
         public QifParser(Stream input)
         {
             _content = input;
             _reader = new StreamReader(_content);
+            _itemFiller = new QifAccountItemFiller();
         }
 
-        private bool IsEndOfRecord => IsEndOfFile || _line == "^";
-        private bool IsEndOfFile => _line == null;
+        private bool IsEndOfRecord => IsEof || _line == "^";
+        private bool IsEof => _line == null;
 
         public async IAsyncEnumerable<Account> GetAccountsAsync(
-            [EnumeratorCancellation]CancellationToken cancellationToken)
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            Account account = null;
             do
             {
-                if (account == null)
-                {
-                    account = await TryParseHeaderAsync();
-                    if (account == null)
-                        yield break;
-                    if (IsEndOfRecord)
-                    {
-                        yield return account;
-                        account = null;
-                        continue;
-                    }
-                }
-                else
-                {
-                    _line = await _reader.ReadLineAsync();
-                }
-
-                if (IsEndOfRecord)
-                {
-                    yield return account;
-                    account = null;
-                }
+                var account = await ParseAccountAsync();
+                if (account == null) // TODO: Move to the end of the items
+                    yield break;
+                yield return account;
             }
-            while (_line != null);
+            while (!IsEof);
         }
 
         public async IAsyncEnumerable<AccountItem> GetAccountItemsAsync(
-            [EnumeratorCancellation]CancellationToken cancellationToken)
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            do
+            if (IsEndOfRecord)
+                yield break;
+            var item = new AccountItem();
+            while (!IsEof)
             {
-            }
-            while (!IsEndOfFile);
+                _line = await _reader.ReadLineAsync();
+                if (IsEof)
+                    break;
+                if (IsEndOfRecord)
+                {
+                    yield return item;
+                    continue;
+                }
+                var code = _line.Substring(0, 1);
+                var value = _line.Substring(1);
+                _itemFiller.Fill(item, code, value);
+            };
 
 
             // var item = new AccountItem
@@ -87,42 +84,45 @@ namespace WebApp.Domain.Parsers
             yield break;
         }
 
-        private async Task<Account> TryParseHeaderAsync()
+        private async Task<Account> ParseAccountAsync()
         {
-            var isQuickenMode = false;
-            var account = new Account(this);
+            var isQuickenAccountInfo = false;
+            Account? account = null;
             do
             {
                 _line = await _reader.ReadLineAsync();
                 if (_line == null)
                     return null;
 
-                if (_line == "!Account")
-                    isQuickenMode = true;
+                if (_line.StartsWith("!Type:"))
+                {
+                    GetAccount().Type = GetType(_line.Substring(6));
+                    break;
+                }
 
-                if (isQuickenMode)
+                if (_line == "!Account")
+                    isQuickenAccountInfo = true;
+
+                if (isQuickenAccountInfo)
                 {
                     if (_line.StartsWith("N"))
-                        account.Name = _line.Substring(1);
-                    if (_line.StartsWith("T"))
-                        account.Type = GetType(_line.Substring(1));
-                    if (_line.StartsWith("D"))
-                        account.Description = _line.Substring(1);
+                        GetAccount().Name = _line.Substring(1);
+                    else if (_line.StartsWith("T"))
+                        GetAccount().Type = GetType(_line.Substring(1));
+                    else if (_line.StartsWith("D"))
+                        GetAccount().Description = _line.Substring(1);
                 }
 
                 if (IsEndOfRecord)
                 {
-                    if (!isQuickenMode)
-                        break;
-                    isQuickenMode = false;
+                    isQuickenAccountInfo = false;
                     continue;
                 }
-
-                if (_line.StartsWith("!Type:"))
-                    account.Type = GetType(_line.Substring(6));
             }
-            while (_line != null);
+            while (!IsEof);
             return account;
+
+            Account GetAccount() => account ??= new Account(this);
         }
 
         private static AccountType GetType(string value) => value switch

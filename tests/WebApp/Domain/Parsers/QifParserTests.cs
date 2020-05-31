@@ -126,29 +126,41 @@ DBanking description
             }
         }
 
+        // TODO: !Type:Cat
+        // TODO: !Type:Class
+        // TODO: !Type:Memorized
+
         [Fact]
         public async Task Simple_single_record_parsing()
         {
             // arrange
             const string @record = @"!Type:Bank
 D03/04/10
-T-379.12
+T-378.12
 PCITY OF SPRINGFIELD
 ^";
             // act
             var doc = QifParser.Create(@record);
-            var accounts = await doc.GetAccounts().ToArrayAsync();
+            var accountsRead = 0;
+            await foreach (var account in doc.GetAccounts())
+            {
+                (++accountsRead).Should().Be(1);
+                // account
+                account.Should().NotBeNull();
+                account.Type.Should().Be(AccountType.Bank);
+                // items
+                var items = await account.GetItems().ToArrayAsync();
+                items.Should().HaveCount(1);
+                var item = items[0];
+                item.Date.Should().Be(new DateTime(2010, 03, 04));
+                item.Amount.Should().Be(-378.12);
+                item.Payee.Should().Be("CITY OF SPRINGFIELD");
+            }
+            /*
             // assert
             accounts.Should().HaveCount(1);
             var account = accounts[0];
-            account.Should().NotBeNull();
-            account.Type.Should().Be(AccountType.Bank);
-            var items = await account.GetItems().ToArrayAsync();
-            items.Should().HaveCount(1);
-            var item = items[0];
-            item.Date.Should().Be(new DateTime(2010, 03, 04));
-            item.Amount.Should().Be(-379.12);
-            item.Payee.Should().Be("CITY OF SPRINGFIELD");
+            */
         }
 
         [Fact]
@@ -160,35 +172,41 @@ D03/03/10
 T-379.00
 PCITY OF SPRINGFIELD
 ^
-D03/04/10
+D04/03/10
 T-20.28
 PYOUR LOCAL SUPERMARKET
 ^
-D07/11/2020
+D11/07/2020
 T-421.35
 PSPRINGFIELD WATER UTILITY
 ^";
             // act
             var doc = QifParser.Create(@record);
-            var accounts = await doc.GetAccounts().ToArrayAsync();
             // assert
-            accounts.Should().HaveCount(3);
+
+            var enumerator = doc.GetAccounts().GetAsyncEnumerator(default);
+            (await enumerator.MoveNextAsync()).Should().BeTrue();
             await AssertAsync(
-                accounts[0],
+                enumerator.Current,
                 new DateTime(2010, 3, 3),
                 -379.0,
                 "CITY OF SPRINGFIELD");
+
+            (await enumerator.MoveNextAsync()).Should().BeTrue();
             await AssertAsync(
-                accounts[1],
+                enumerator.Current,
                 new DateTime(2010, 3, 4),
                 -20.28,
                 "YOUR LOCAL SUPERMARKET");
+
+            (await enumerator.MoveNextAsync()).Should().BeTrue();
             await AssertAsync(
-                accounts[2],
+                enumerator.Current,
                 new DateTime(2020, 7, 11),
                 -421.35,
                 "SPRINGFIELD WATER UTILITY");
 
+            (await enumerator.MoveNextAsync()).Should().BeFalse();
             static async Task AssertAsync(
                 Account account,
                 DateTime date,
