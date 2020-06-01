@@ -172,11 +172,11 @@ D03/03/10
 T-379.00
 PCITY OF SPRINGFIELD
 ^
-D04/03/10
+D03/04/10
 T-20.28
 PYOUR LOCAL SUPERMARKET
 ^
-D11/07/2020
+D07/11/20
 T-421.35
 PSPRINGFIELD WATER UTILITY
 ^";
@@ -184,42 +184,40 @@ PSPRINGFIELD WATER UTILITY
             var doc = QifParser.Create(@record);
             // assert
 
-            var enumerator = doc.GetAccounts().GetAsyncEnumerator(default);
-            (await enumerator.MoveNextAsync()).Should().BeTrue();
-            await AssertAsync(
-                enumerator.Current,
+            var accountsEnumerator = doc.GetAccounts().GetAsyncEnumerator(default);
+            (await accountsEnumerator.MoveNextAsync()).Should().BeTrue();
+
+            var itemsEnumerator = accountsEnumerator.Current.GetItems().GetAsyncEnumerator(default);
+
+            (await itemsEnumerator.MoveNextAsync()).Should().BeTrue();
+            AssertItem(
+                itemsEnumerator.Current,
                 new DateTime(2010, 3, 3),
                 -379.0,
                 "CITY OF SPRINGFIELD");
 
-            (await enumerator.MoveNextAsync()).Should().BeTrue();
-            await AssertAsync(
-                enumerator.Current,
+            (await itemsEnumerator.MoveNextAsync()).Should().BeTrue();
+            AssertItem(
+                itemsEnumerator.Current,
                 new DateTime(2010, 3, 4),
                 -20.28,
                 "YOUR LOCAL SUPERMARKET");
 
-            (await enumerator.MoveNextAsync()).Should().BeTrue();
-            await AssertAsync(
-                enumerator.Current,
+            (await itemsEnumerator.MoveNextAsync()).Should().BeTrue();
+            AssertItem(
+                itemsEnumerator.Current,
                 new DateTime(2020, 7, 11),
                 -421.35,
                 "SPRINGFIELD WATER UTILITY");
 
-            (await enumerator.MoveNextAsync()).Should().BeFalse();
-            static async Task AssertAsync(
-                Account account,
+            (await accountsEnumerator.MoveNextAsync()).Should().BeFalse();
+
+            static void AssertItem(
+                AccountItem item,
                 DateTime date,
                 double amount,
                 string payee)
             {
-                // account
-                account.Should().NotBeNull();
-                account.Type.Should().Be(AccountType.Bank);
-                var items = await account.GetItems().ToArrayAsync();
-                items.Should().HaveCount(1);
-                // item
-                var item = items[0];
                 item.Should().NotBeNull();
                 item.Date.Should().Be(date);
                 item.Amount.Should().Be(amount);
