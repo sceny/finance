@@ -25,18 +25,18 @@ namespace Sceny.Finance.WebApp.Tests.Domain.Parsers
             // act
             var doc = QifParser.Create(bankRecord);
             // assert
-            var accounts = await doc.GetAccounts().ToArrayAsync();
+            var accounts = await doc.GetAccounts().ToArrayAsync().ConfigureAwait(false);
             accounts.Should().HaveCount(1);
             accounts[0].Should().NotBeNull();
             accounts[0].Type.Should().Be(accountType);
-            (await accounts[0].GetItems().ToArrayAsync()).Should().BeEmpty();
+            (await accounts[0].GetItems().ShouldAsync().ConfigureAwait(false)).BeEmpty();
         }
 
         [Fact]
         public async Task Simple_quicken_account()
         {
             // arrange
-            var bankRecord = $@"!Account
+            const string bankRecord = @"!Account
 NMy credit card
 TCCard
 DAccount Description
@@ -46,36 +46,36 @@ DAccount Description
             // act
             var doc = QifParser.Create(bankRecord);
             // assert
-            var accounts = await doc.GetAccounts().ToArrayAsync();
+            var accounts = await doc.GetAccounts().ToArrayAsync().ConfigureAwait(false);
             accounts.Should().HaveCount(1);
             var account = accounts[0];
             account.Should().NotBeNull();
             account.Type.Should().Be(AccountType.CreditCard);
             account.Name.Should().Be("My credit card");
             account.Description.Should().Be("Account Description");
-            (await account.GetItems().ToArrayAsync()).Should().BeEmpty();
+            (await account.GetItems().ShouldAsync().ConfigureAwait(false)).BeEmpty();
         }
 
         [Fact]
         public async Task Multiple_standard_accounts()
         {
             // arrange
-            var bankRecord = $@"!Type:CCard
+            const string bankRecord = @"!Type:CCard
 ^
 !Type:Cash
 ^";
             // act
             var doc = QifParser.Create(bankRecord);
             // assert
-            var accounts = await doc.GetAccounts().ToArrayAsync();
+            var accounts = await doc.GetAccounts().ToArrayAsync().ConfigureAwait(false);
             accounts.Should().HaveCount(2);
-            await AssertAccountAsync(accounts[0], AccountType.CreditCard);
-            await AssertAccountAsync(accounts[1], AccountType.Cash);
+            await AssertAccountAsync(accounts[0], AccountType.CreditCard).ConfigureAwait(false);
+            await AssertAccountAsync(accounts[1], AccountType.Cash).ConfigureAwait(false);
             static async Task AssertAccountAsync(Account account, AccountType type)
             {
                 account.Should().NotBeNull();
                 account.Type.Should().Be(type);
-                (await account.GetItems().ToArrayAsync()).Should().BeEmpty();
+                (await account.GetItems().ShouldAsync().ConfigureAwait(false)).BeEmpty();
             }
         }
 
@@ -83,7 +83,7 @@ DAccount Description
         public async Task Multiple_quicken_accounts()
         {
             // arrange
-            var bankRecord = $@"!Account
+            const string bankRecord = @"!Account
 NMy credit card
 TCCard
 DAccount Description
@@ -100,18 +100,18 @@ DBanking description
             // act
             var doc = QifParser.Create(bankRecord);
             // assert
-            var accounts = await doc.GetAccounts().ToArrayAsync();
+            var accounts = await doc.GetAccounts().ToArrayAsync().ConfigureAwait(false);
             accounts.Should().HaveCount(2);
             await AssertAccountAsync(
                 accounts[0],
                 "My credit card",
                 AccountType.CreditCard,
-                "Account Description");
+                "Account Description").ConfigureAwait(false);
             await AssertAccountAsync(
                 accounts[1],
                 "My banking",
                 AccountType.Bank,
-                "Banking description");
+                "Banking description").ConfigureAwait(false);
             static async Task AssertAccountAsync(
                 Account account,
                 string name,
@@ -122,7 +122,7 @@ DBanking description
                 account.Name.Should().Be(name);
                 account.Type.Should().Be(type);
                 account.Description.Should().Be(description);
-                (await account.GetItems().ToArrayAsync()).Should().BeEmpty();
+                (await account.GetItems().ShouldAsync().ConfigureAwait(false)).BeEmpty();
             }
         }
 
@@ -149,7 +149,7 @@ PCITY OF SPRINGFIELD
                 account.Should().NotBeNull();
                 account.Type.Should().Be(AccountType.Bank);
                 // items
-                var items = await account.GetItems().ToArrayAsync();
+                var items = await account.GetItems().ToArrayAsync().ConfigureAwait(false);
                 items.Should().HaveCount(1);
                 var item = items[0];
                 item.Date.Should().Be(new DateTime(2010, 03, 04));
@@ -185,32 +185,32 @@ PSPRINGFIELD WATER UTILITY
             // assert
 
             var accountsEnumerator = doc.GetAccounts().GetAsyncEnumerator(default);
-            (await accountsEnumerator.MoveNextAsync()).Should().BeTrue();
+            (await accountsEnumerator.MoveNextAsync().ConfigureAwait(false)).Should().BeTrue();
 
             var itemsEnumerator = accountsEnumerator.Current.GetItems().GetAsyncEnumerator(default);
 
-            (await itemsEnumerator.MoveNextAsync()).Should().BeTrue();
+            (await itemsEnumerator.MoveNextAsync().ConfigureAwait(false)).Should().BeTrue();
             AssertItem(
                 itemsEnumerator.Current,
                 new DateTime(2010, 3, 3),
                 -379.0,
                 "CITY OF SPRINGFIELD");
 
-            (await itemsEnumerator.MoveNextAsync()).Should().BeTrue();
+            (await itemsEnumerator.MoveNextAsync().ConfigureAwait(false)).Should().BeTrue();
             AssertItem(
                 itemsEnumerator.Current,
                 new DateTime(2010, 3, 4),
                 -20.28,
                 "YOUR LOCAL SUPERMARKET");
 
-            (await itemsEnumerator.MoveNextAsync()).Should().BeTrue();
+            (await itemsEnumerator.MoveNextAsync().ConfigureAwait(false)).Should().BeTrue();
             AssertItem(
                 itemsEnumerator.Current,
                 new DateTime(2020, 7, 11),
                 -421.35,
                 "SPRINGFIELD WATER UTILITY");
 
-            (await accountsEnumerator.MoveNextAsync()).Should().BeFalse();
+            (await accountsEnumerator.MoveNextAsync().ConfigureAwait(false)).Should().BeFalse();
 
             static void AssertItem(
                 AccountItem item,
@@ -224,8 +224,6 @@ PSPRINGFIELD WATER UTILITY
                 item.Payee.Should().Be(payee);
             }
         }
-
-
 
         //         [Theory]
         //         [InlineData("25 December 2006", 2006, 12, 25)]

@@ -13,7 +13,7 @@ namespace WebApp.Domain.Parsers
     public class QifParser : IParser
     {
         public static Document Create(Stream content)
-            => new Document(new QifParser(content));
+            => new(new QifParser(content));
 
         public static Document Create(string content)
         {
@@ -23,7 +23,7 @@ namespace WebApp.Domain.Parsers
             return new Document(parser);
         }
 
-        private string _line;
+        private string? _line;
         private readonly StreamReader _reader;
         private readonly QifAccountItemFiller _itemFiller;
         private readonly Stream _content;
@@ -35,20 +35,19 @@ namespace WebApp.Domain.Parsers
             _itemFiller = new QifAccountItemFiller();
         }
 
-        private bool IsEndOfRecord => IsEof || _line == "^";
-        private bool IsEof => _line == null;
+        private bool IsEndOfRecord => _line == null || _line == "^";
 
         public async IAsyncEnumerable<Account> GetAccountsAsync(
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             do
             {
-                var account = await ParseAccountAsync();
+                var account = await ParseAccountAsync().ConfigureAwait(false);
                 if (account == null) // TODO: Move to the end of the items
                     yield break;
                 yield return account;
             }
-            while (!IsEof);
+            while (_line != null);
         }
 
         public async IAsyncEnumerable<AccountItem> GetAccountItemsAsync(
@@ -57,21 +56,20 @@ namespace WebApp.Domain.Parsers
             if (IsEndOfRecord)
                 yield break;
             var item = new AccountItem();
-            while (!IsEof)
+            while (_line != null)
             {
-                _line = await _reader.ReadLineAsync();
-                if (IsEof)
+                _line = await _reader.ReadLineAsync().ConfigureAwait(false);
+                if (_line == null)
                     break;
                 if (IsEndOfRecord)
                 {
                     yield return item;
                     continue;
                 }
-                var code = _line.Substring(0, 1);
-                var value = _line.Substring(1);
+                var code = _line[0..1];
+                var value = _line[1..];
                 _itemFiller.Fill(item, code, value);
-            };
-
+            }
 
             // var item = new AccountItem
             // {
@@ -84,19 +82,19 @@ namespace WebApp.Domain.Parsers
             yield break;
         }
 
-        private async Task<Account> ParseAccountAsync()
+        private async Task<Account?> ParseAccountAsync()
         {
             var isQuickenAccountInfo = false;
             Account? account = null;
             do
             {
-                _line = await _reader.ReadLineAsync();
+                _line = await _reader.ReadLineAsync().ConfigureAwait(false);
                 if (_line == null)
                     return null;
 
                 if (_line.StartsWith("!Type:"))
                 {
-                    GetAccount().Type = GetType(_line.Substring(6));
+                    GetAccount().Type = GetType(_line[6..]);
                     break;
                 }
 
@@ -106,11 +104,11 @@ namespace WebApp.Domain.Parsers
                 if (isQuickenAccountInfo)
                 {
                     if (_line.StartsWith("N"))
-                        GetAccount().Name = _line.Substring(1);
+                        GetAccount().Name = _line[1..];
                     else if (_line.StartsWith("T"))
-                        GetAccount().Type = GetType(_line.Substring(1));
+                        GetAccount().Type = GetType(_line[1..]);
                     else if (_line.StartsWith("D"))
-                        GetAccount().Description = _line.Substring(1);
+                        GetAccount().Description = _line[1..];
                 }
 
                 if (IsEndOfRecord)
@@ -119,7 +117,7 @@ namespace WebApp.Domain.Parsers
                     continue;
                 }
             }
-            while (!IsEof);
+            while (_line != null);
             return account;
 
             Account GetAccount() => account ??= new Account(this);
@@ -137,6 +135,10 @@ namespace WebApp.Domain.Parsers
             _ => AccountType.Unknown
         };
 
-        public void Dispose() => _reader?.Dispose();
+        public void Dispose()
+        {
+            _reader?.Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
 }

@@ -7,10 +7,16 @@ namespace WebApp.Domain.Budget
 {
     public class BudgetItem
     {
+        private Category? _category;
+
         public int Id { get; set; }
         public DateTime Month { get; set; }
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+        public Category Category
+        {
+            get => Check.EFLoaded(_category);
+            set => _category = value;
+        }
     }
 
     internal class BudgetItemEntityTypeConfiguration : IEntityTypeConfiguration<BudgetItem>

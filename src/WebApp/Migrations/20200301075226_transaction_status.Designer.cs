@@ -11,7 +11,7 @@ namespace Sceny.Finance.WebApp.Migrations
 {
     [DbContext(typeof(FinanceContext))]
     [Migration("20200301075226_transaction_status")]
-    partial class transaction_status
+    partial class Transaction_status
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

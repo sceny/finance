@@ -13,11 +13,7 @@ namespace Sceny.Finance.WebApp
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
+        public Startup(IConfiguration configuration) => Configuration = configuration;
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -27,10 +23,7 @@ namespace Sceny.Finance.WebApp
             services.AddDomain(Configuration);
 
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/build";
-            });
+            services.AddSpaStaticFiles(configuration => configuration.RootPath = "ClientApp/build");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,9 +65,9 @@ namespace Sceny.Finance.WebApp
             });
         }
 
-        private void MigrateDatabase(IServiceProvider services)
+        private static void MigrateDatabase(IServiceProvider services)
         {
-            var db = services.GetService<FinanceContext>();
+            var db = services.GetRequiredService<FinanceContext>();
             db.Database.Migrate();
         }
     }

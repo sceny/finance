@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Sceny.Finance.WebApp.Migrations
 {
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,10 +16,7 @@ namespace Sceny.Finance.WebApp.Migrations
                     name = table.Column<string>(maxLength: 128, nullable: false),
                     xmin = table.Column<uint>(type: "xid", nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_account_type", x => x.id);
-                });
+                constraints: table => table.PrimaryKey("pk_account_type", x => x.id));
 
             migrationBuilder.CreateTable(
                 name: "currency",
@@ -30,10 +27,7 @@ namespace Sceny.Finance.WebApp.Migrations
                     name = table.Column<string>(maxLength: 128, nullable: false),
                     xmin = table.Column<uint>(type: "xid", nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_currency", x => x.id);
-                });
+                constraints: table => table.PrimaryKey("pk_currency", x => x.id));
 
             migrationBuilder.CreateTable(
                 name: "transaction_kind",
@@ -43,10 +37,7 @@ namespace Sceny.Finance.WebApp.Migrations
                     name = table.Column<string>(maxLength: 32, nullable: false),
                     xmin = table.Column<uint>(type: "xid", nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_transaction_kind", x => x.id);
-                });
+                constraints: table => table.PrimaryKey("pk_transaction_kind", x => x.id));
 
             migrationBuilder.CreateTable(
                 name: "transaction_status",
@@ -55,11 +46,7 @@ namespace Sceny.Finance.WebApp.Migrations
                     id = table.Column<int>(nullable: false),
                     name = table.Column<string>(maxLength: 32, nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_transaction_status", x => x.id);
-                });
-
+                constraints: table => table.PrimaryKey("pk_transaction_status", x => x.id));
             migrationBuilder.CreateTable(
                 name: "account",
                 columns: table => new

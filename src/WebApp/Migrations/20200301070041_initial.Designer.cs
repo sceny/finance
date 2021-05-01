@@ -11,7 +11,7 @@ namespace Sceny.Finance.WebApp.Migrations
 {
     [DbContext(typeof(FinanceContext))]
     [Migration("20200301070041_initial")]
-    partial class initial
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

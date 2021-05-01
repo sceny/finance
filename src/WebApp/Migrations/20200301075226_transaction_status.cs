@@ -2,7 +2,7 @@
 
 namespace Sceny.Finance.WebApp.Migrations
 {
-    public partial class transaction_status : Migration
+    public partial class Transaction_status : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
