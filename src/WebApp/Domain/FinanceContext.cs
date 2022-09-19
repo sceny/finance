@@ -1,21 +1,20 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApp.Domain
+namespace WebApp.Domain;
+
+public class FinanceContext : DbContext
 {
-    public class FinanceContext : DbContext
+    public FinanceContext([NotNull] DbContextOptions options) : base(options)
     {
-        public FinanceContext([NotNull] DbContextOptions options) : base(options)
-        {
-        }
+    }
 
-        protected FinanceContext()
-        {
-        }
+    protected FinanceContext()
+    {
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(FinanceContext).Assembly);
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(FinanceContext).Assembly);
     }
 }

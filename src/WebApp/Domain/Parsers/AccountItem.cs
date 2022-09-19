@@ -1,11 +1,10 @@
 using System;
 
-namespace WebApp.Domain.Parsers
+namespace WebApp.Domain.Parsers;
+
+public class AccountItem
 {
-    public class AccountItem
-    {
-        public DateTime? Date { get; set; }
-        public double? Amount { get; set; }
-        public string? Payee { get; set; }
-    }
+    public DateTime? Date { get; set; }
+    public double? Amount { get; set; }
+    public string? Payee { get; set; }
 }

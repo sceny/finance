@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApp.Domain.Budget
+namespace WebApp.Domain.Budget;
+
+public class BudgetContext
 {
-    public class BudgetContext
-    {
-        private readonly FinanceContext _context;
+    private readonly FinanceContext _context;
 
-        public BudgetContext(FinanceContext context) => _context = context ?? throw new System.ArgumentNullException(nameof(context));
+    public BudgetContext(FinanceContext context) => _context = context ?? throw new System.ArgumentNullException(nameof(context));
 
-        public DbSet<BudgetItem> Items => _context.Set<BudgetItem>();
-    }
+    public DbSet<BudgetItem> Items => _context.Set<BudgetItem>();
 }

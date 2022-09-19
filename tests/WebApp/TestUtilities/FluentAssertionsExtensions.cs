@@ -5,15 +5,14 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Collections;
 
-namespace Sceny.Finance.WebApp.Tests
+namespace Sceny.Finance.WebApp.Tests;
+
+public static class FluentAssertionsExtensions
 {
-    public static class FluentAssertionsExtensions
+    [PureAttribute]
+    public static async Task<GenericCollectionAssertions<T>> ShouldAsync<T>(this IAsyncEnumerable<T> actualValue)
     {
-        [PureAttribute]
-        public static async Task<GenericCollectionAssertions<T>> ShouldAsync<T>(this IAsyncEnumerable<T> actualValue)
-        {
-            var array = await actualValue.ToArrayAsync().ConfigureAwait(false);
-            return array.Should();
-        }
+        var array = await actualValue.ToArrayAsync().ConfigureAwait(false);
+        return array.Should();
     }
 }
