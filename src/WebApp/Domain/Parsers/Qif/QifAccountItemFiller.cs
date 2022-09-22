@@ -5,6 +5,11 @@ namespace WebApp.Domain.Parsers.Qif;
 
 public class QifAccountItemFiller
 {
+    public ValueParser ValueParser { get; }
+
+    public QifAccountItemFiller(ValueParser valueParser) =>
+        ValueParser = valueParser ?? throw new ArgumentNullException(nameof(valueParser));
+
     public void Fill(AccountItem item, string code, string value)
     {
         switch (code)
@@ -116,25 +121,19 @@ public class QifAccountItemFiller
     /// <para>Leading zeroes on month and day can be skipped. Year can be either 4 digits or 2 digits or '6 (=2006).</para>
     /// <para>D25 December 2006</para>
     /// </summary>
-    private static void FillDate(AccountItem item, ReadOnlySpan<char> value)
-    {
-        item.Date = DateTime.ParseExact(
-            value,
-            "MM/dd/yy",
-            CultureInfo.InvariantCulture,
-            DateTimeStyles.AssumeLocal);
-        // TODO: Support others formats, with customization
-    }
+    private void FillDate(AccountItem item, ReadOnlySpan<char> value) =>
+        item.Date = ValueParser.TryParseDate(value, out var parsed)
+            ? parsed
+            : throw new InvalidOperationException($"Unable to parse date: {value.ToString()}");
 
     /// <summary>
     /// <para>Amount of the item.</para>
     /// <para>For payments, a leading minus sign is required. For deposits, either no sign or a leading plus sign is accepted. Do not include currency symbols ($, £, ¥, etc.). Comma separators between thousands are allowed.</para>
     /// <para>T-1,234.50</para>
-    private static void FillAmount(AccountItem item, ReadOnlySpan<char> value)
-    {
-        item.Amount = double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
-        // TODO: Support others formats, with customization
-    }
+    private void FillAmount(AccountItem item, ReadOnlySpan<char> value) =>
+        item.Amount = ValueParser.TryParseNumber(value, out var parsed)
+            ? parsed
+            : throw new InvalidOperationException($"Unable to parse number: {value.ToString()}");
 
     /// <summary>
     /// Payee. Or a description for deposits, transfers, etc.	Banking, Investment	PStandard Oil, Inc.

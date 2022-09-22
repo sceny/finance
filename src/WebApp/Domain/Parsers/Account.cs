@@ -14,7 +14,7 @@ public class Account
     public string Name { get; set; } = "";
     public string Description { get; set; } = "";
 
-    public IAsyncEnumerable<AccountItem> GetItems(
+    public IAsyncEnumerable<AccountItem> GetItemsAsync(
         CancellationToken cancellationToken = default)
         => _parser.GetAccountItemsAsync(cancellationToken);
 }

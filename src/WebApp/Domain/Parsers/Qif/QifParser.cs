@@ -12,6 +12,23 @@ namespace WebApp.Domain.Parsers;
 // https://en.wikipedia.org/wiki/Quicken_Interchange_Format
 public class QifParser : IParser
 {
+    // TODO: Support others formats, with customization
+    public static readonly ValueParser ValueParser = new(
+        new(new[]
+        {
+            "M/d\\'yyyy",
+            "M/d \\'yyyy",
+            "M/d\\'yy",
+            "M/d \\'yy",
+            "M/d\\'y",
+            "M/d \\'y",
+            "M/d/yy",
+            "M/d/yyyy",
+            "d MMMM yyyy",
+            "d MMM yyyy"
+        })
+    );
+
     public static Document Create(Stream content)
         => new(new QifParser(content));
 
@@ -32,7 +49,7 @@ public class QifParser : IParser
     {
         _content = input;
         _reader = new StreamReader(_content);
-        _itemFiller = new QifAccountItemFiller();
+        _itemFiller = new(ValueParser);
     }
 
     private bool IsEndOfRecord => _line == null || _line == "^";
@@ -71,14 +88,6 @@ public class QifParser : IParser
             _itemFiller.Fill(item, code, value);
         }
 
-        // var item = new AccountItem
-        // {
-        //     Date = new DateTime(2010, 03, 04),
-        //     Amount = -379.12,
-        //     Payee = "CITY OF SPRINGFIELD"
-        // };
-
-        // yield return item;
         yield break;
     }
 

@@ -9,7 +9,7 @@ public class Document
     public Document(IParser parser)
         => _parser = parser ?? throw new System.ArgumentNullException(nameof(parser));
 
-    public IAsyncEnumerable<Account> GetAccounts(
+    public IAsyncEnumerable<Account> GetAccountsAsync(
         CancellationToken cancellationToken = default)
         => _parser.GetAccountsAsync(cancellationToken);
 }
