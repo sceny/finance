@@ -1,7 +1,4 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
@@ -9,7 +6,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/WebApp/bin/Debug/netcoreapp3.1/Sceny.Finance.WebApp.dll",
+      "program": "${workspaceFolder}/src/WebApp/bin/Debug/net7.0/Sceny.Finance.WebApp.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/WebApp",
       "stopAtEntry": false,
@@ -28,17 +25,29 @@
       "name": "Launch Chrome",
       "url": "https://localhost:5001",
       "webRoot": "${workspaceFolder}",
-      "sourceMapPathOverrides": { "/mnt/c/*": "C:/*" },
+      "sourceMapPathOverrides": {
+        "/mnt/c/*": "C:/*"
+      },
       "skipFiles": [
         "<node_internals>/**/*.js",
         "${workspaceFolder}/src/WebApp/ClientApp/node_modules/**/*.js"
       ]
+    },
+    {
+      "type": "node-terminal",
+      "name": "Run Script: dev",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}\\src\\WebApp\\ClientApp"
     }
   ],
   "compounds": [
     {
       "name": "App Launch",
-      "configurations": [".NET Core Launch (web)", "Launch Chrome"]
+      "configurations": [
+        ".NET Core Launch (web)",
+        "Launch Chrome"
+      ]
     }
   ]
 }
