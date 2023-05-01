@@ -23,6 +23,13 @@
       "sceny-finance/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/pages/___app.tsx__", "src/pages/_document.tsx", "src/app/(nav)/layout.tsx_"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/pages/_app.tsx",
+    "src/pages/_document.tsx"
+  ],
   "exclude": ["node_modules"]
 }
