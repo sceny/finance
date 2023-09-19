@@ -1,0 +1,34 @@
+{
+    "_id": "cf09a299-ea4f-4275-a101-298b48d02416",
+    "name": "coinbase/sandbox",
+    "default": true,
+    "sortNum": 10000,
+    "created": "2023-09-19T16:03:34.875Z",
+    "modified": "2023-09-19T16:03:34.875Z",
+    "data": [
+        {
+            "name": "coinbase/baseUrl",
+            "value": "{{ENV_COINBASE_SANDBOX_BASE_URL}}"
+        },
+        {
+            "name": "coinbase/apiV2BaseUrl",
+            "value": "{{ENV_COINBASE_SANDBOX_API_V2_BASE_URL}}"
+        },
+        {
+            "name": "coinbase/apiV3BaseUrl",
+            "value": "{{ENV_COINBASE_SANDBOX_API_V3_BASE_URL}}"
+        },
+        {
+            "name": "coinbase/apiKey",
+            "value": "{{ENV_COINBASE_SANDBOX_API_KEY}}"
+        },
+        {
+            "name": "coinbase/apiSecret",
+            "value": "{{ENV_COINBASE_SANDBOX_API_SECRET}}"
+        },
+        {
+            "name": "coinbase/accessTimestamp",
+            "value": "{{#date, 'X'}}"
+        }
+    ]
+}

@@ -1,0 +1,61 @@
+{
+    "_id": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+    "colName": "coinbase",
+    "created": "2023-09-19T14:25:41.473Z",
+    "sortNum": 10000,
+    "folders": [
+        {
+            "_id": "c73a2351-83fe-47ae-a488-b27e01885e88",
+            "name": "wallet",
+            "containerId": "",
+            "created": "2023-09-19T16:01:12.543Z",
+            "sortNum": 10000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "cbfb6f5b-7c5e-4861-8795-8d847bf7f60c",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "c73a2351-83fe-47ae-a488-b27e01885e88",
+            "name": "List Accounts",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/accounts",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2023-09-19T16:01:21.075Z",
+            "modified": "2023-09-19T21:11:45.290Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/accounts\")}}"
+                }
+            ],
+            "params": [],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_getaccounts"
+        }
+    ],
+    "settings": {
+        "headers": [
+            {
+                "name": "CB-ACCESS-KEY",
+                "value": "{{coinbase/apiKey}}"
+            },
+            {
+                "name": "CB-ACCESS-TIMESTAMP",
+                "value": "{{#date, 'X'}}"
+            },
+            {
+                "name": "CB-ACCESS-SIGN",
+                "value": "{{coinbase/accessSignValue}}"
+            }
+        ],
+        "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/docs/rest-api-overview\n\nhttps://help.coinbase.com/en/cloud/api\n\nhttps://docs.cloud.coinbase.com/wallet-sdk/docs/welcome",
+        "options": {
+            "baseUrl": "{{coinbase/baseUrl}}"
+        },
+        "scripts": [
+            "../custom-scripts.js"
+        ],
+        "envId": "cf09a299-ea4f-4275-a101-298b48d02416"
+    }
+}

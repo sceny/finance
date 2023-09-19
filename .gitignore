@@ -331,3 +331,6 @@ ASALocalRun/
 docs/react-redux-react-router-es6.zip
 docs/react-redux-react-router-es6/
 src/WebApp/ClientApp/tools/db.json
+
+# thunder-client
+resources/thunder-client/.env

@@ -9,5 +9,7 @@
         "activityBar.background": "#0B3331",
         "titleBar.activeBackground": "#0F4745",
         "titleBar.activeForeground": "#F4FDFC"
-    }
+    },
+    "thunder-client.saveToWorkspace": true,
+    "thunder-client.workspaceRelativePath": "./resources/thunder-client"
 }
