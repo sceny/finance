@@ -38,7 +38,7 @@
       "name": "Run Script: dev",
       "request": "launch",
       "command": "npm run dev",
-      "cwd": "${workspaceFolder}\\src\\WebApp\\ClientApp"
+      "cwd": "${workspaceFolder}/src/WebApp/ClientApp"
     }
   ],
   "compounds": [
