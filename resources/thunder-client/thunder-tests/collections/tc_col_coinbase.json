@@ -10,6 +10,27 @@
             "containerId": "",
             "created": "2023-09-19T16:01:12.543Z",
             "sortNum": 10000
+        },
+        {
+            "_id": "a4eb6842-ccbb-48b6-9185-0822ebfc8954",
+            "name": "orders",
+            "containerId": "",
+            "created": "2023-10-02T12:39:26.906Z",
+            "sortNum": 20000
+        },
+        {
+            "_id": "1fa04c27-f2a0-45ff-b832-4729799938ca",
+            "name": "fees",
+            "containerId": "",
+            "created": "2023-10-02T12:56:26.244Z",
+            "sortNum": 30000
+        },
+        {
+            "_id": "6f90f754-6d4b-4bbe-83dd-d16e751caecf",
+            "name": "products",
+            "containerId": "",
+            "created": "2023-10-02T13:12:48.493Z",
+            "sortNum": 25000
         }
     ],
     "requests": [
@@ -18,11 +39,51 @@
             "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
             "containerId": "c73a2351-83fe-47ae-a488-b27e01885e88",
             "name": "List Accounts",
-            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/accounts",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/product_book",
             "method": "GET",
             "sortNum": 10000,
             "created": "2023-09-19T16:01:21.075Z",
-            "modified": "2023-09-19T21:11:45.290Z",
+            "modified": "2023-10-02T13:13:23.632Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/product_book\")}}"
+                }
+            ],
+            "params": [],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_getproductbook"
+        },
+        {
+            "_id": "5ed90d5a-cfd7-44f7-9bb3-90d37edad05d",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "a4eb6842-ccbb-48b6-9185-0822ebfc8954",
+            "name": "List Orders",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/orders/historical/batch",
+            "method": "GET",
+            "sortNum": 15000,
+            "created": "2023-09-20T07:27:33.341Z",
+            "modified": "2023-10-02T12:46:03.677Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/orders/historical/batch\")}}"
+                }
+            ],
+            "params": [],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_gethistoricalorders"
+        },
+        {
+            "_id": "d3f906da-3d05-48df-908f-4f020ec7ec18",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "c73a2351-83fe-47ae-a488-b27e01885e88",
+            "name": "Get Account",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/accounts",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2023-10-02T12:48:41.245Z",
+            "modified": "2023-10-02T12:48:41.245Z",
             "headers": [
                 {
                     "name": "CB-ACCESS-SIGN",
@@ -32,6 +93,117 @@
             "params": [],
             "tests": [],
             "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_getaccounts"
+        },
+        {
+            "_id": "e1023e4a-a6c1-47b4-b272-a12ebaff38c0",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "1fa04c27-f2a0-45ff-b832-4729799938ca",
+            "name": "Get Transactions Summary",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/transaction_summary",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2023-10-02T12:56:33.268Z",
+            "modified": "2023-10-02T12:57:39.182Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/transaction_summary\")}}"
+                }
+            ],
+            "params": [],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_gettransactionsummary"
+        },
+        {
+            "_id": "0c6c51cc-b62c-4ab6-b7b4-cd6446e439c9",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "a4eb6842-ccbb-48b6-9185-0822ebfc8954",
+            "name": "List Fills",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/orders/historical/fills",
+            "method": "GET",
+            "sortNum": 25000,
+            "created": "2023-10-02T12:59:02.753Z",
+            "modified": "2023-10-02T12:59:57.585Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/orders/historical/fills\")}}"
+                }
+            ],
+            "params": [],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_getfills"
+        },
+        {
+            "_id": "ffd9156a-d2d8-45ea-a670-ce32b45f52bb",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "6f90f754-6d4b-4bbe-83dd-d16e751caecf",
+            "name": "List Products",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/products",
+            "method": "GET",
+            "sortNum": 2500,
+            "created": "2023-10-02T13:12:54.794Z",
+            "modified": "2023-10-02T13:17:07.722Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/products\")}}"
+                }
+            ],
+            "params": [
+                {
+                    "name": "limit",
+                    "value": "",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "offset",
+                    "value": "",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "product_type",
+                    "value": "",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "product_ids",
+                    "value": "BTC-USD",
+                    "isDisabled": true,
+                    "isPath": false
+                },
+                {
+                    "name": "contract_expiry_type",
+                    "value": "",
+                    "isDisabled": true,
+                    "isPath": false
+                }
+            ],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_gettransactionsummary"
+        },
+        {
+            "_id": "e34d923e-69c3-42fa-8fce-c3f1ac36fb83",
+            "colId": "f4f3a346-4b4b-4180-b0e7-9e3d720aefdf",
+            "containerId": "6f90f754-6d4b-4bbe-83dd-d16e751caecf",
+            "name": "Get Product Book",
+            "url": "{{coinbase/apiV3BaseUrl}}/brokerage/products",
+            "method": "GET",
+            "sortNum": 5000,
+            "created": "2023-10-02T13:13:46.937Z",
+            "modified": "2023-10-02T13:14:30.878Z",
+            "headers": [
+                {
+                    "name": "CB-ACCESS-SIGN",
+                    "value": "{{@ | getCoinbaseAccessSign(\"GET\", \"/products\")}}"
+                }
+            ],
+            "params": [],
+            "tests": [],
+            "docs": "https://docs.cloud.coinbase.com/advanced-trade-api/reference/retailbrokerageapi_getproducts"
         }
     ],
     "settings": {
