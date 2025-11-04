@@ -17,6 +17,5 @@
 ## Benchmark Requirements
 - All benchmarks must use `[MemoryDiagnoser]` to verify zero-allocation
 - Benchmarks should use `FinanceReader` API
-- Remove duplicate `CreatePipeReader` methods from benchmarks
 - Use `FromBytes()` for byte array data in benchmarks
 

@@ -173,5 +173,289 @@ public class UtilitiesTests
         // Assert
         Assert.Equal(value, memory.Span.ToString());
     }
+
+    [Fact]
+    public void StringToMemory_WithEmptyString_ReturnsEmptyMemory()
+    {
+        // Arrange
+        var value = string.Empty;
+
+        // Act
+        var memory = Utilities.StringToMemory(value);
+
+        // Assert
+        Assert.True(memory.IsEmpty);
+    }
+
+    [Fact]
+    public async Task ReadCompleteSequenceAsync_WithEmptyPipe_ReturnsEmptySequence()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        pipe.Writer.Complete();
+
+        // Act
+        var sequence = await Utilities.ReadCompleteSequenceAsync(pipe.Reader);
+
+        // Assert
+        Assert.Equal(0, sequence.Length);
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public async Task ReadCompleteSequenceAsync_WithCompletedReader_ReturnsSequence()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var data = Encoding.UTF8.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        writer.Complete();
+
+        // Act
+        var sequence = await Utilities.ReadCompleteSequenceAsync(pipe.Reader);
+
+        // Assert
+        Assert.Equal(data.Length, sequence.Length);
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public async Task SequenceToString_WithMultiSegmentSequence_ReturnsString()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var data1 = Encoding.UTF8.GetBytes("hello ");
+        var data2 = Encoding.UTF8.GetBytes("world");
+        var span1 = writer.GetSpan(data1.Length);
+        data1.CopyTo(span1);
+        writer.Advance(data1.Length);
+        await writer.FlushAsync();
+        var span2 = writer.GetSpan(data2.Length);
+        data2.CopyTo(span2);
+        writer.Advance(data2.Length);
+        writer.Complete();
+
+        var readResult = await pipe.Reader.ReadAsync();
+        var sequence = readResult.Buffer;
+
+        // Act
+        var result = Utilities.SequenceToString(sequence, Encoding.UTF8);
+
+        // Assert
+        Assert.Equal("hello world", result);
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public void CreatePipeReaderFromString_CreatesPipeReader()
+    {
+        // Arrange
+        var content = "test";
+
+        // Act
+        var pipeReader = Utilities.CreatePipeReaderFromString(content);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public void CreatePipeReaderFromString_WithEmptyString_CreatesPipeReader()
+    {
+        // Arrange
+        var content = string.Empty;
+
+        // Act
+        var pipeReader = Utilities.CreatePipeReaderFromString(content);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public void CreatePipeReaderFromString_WithCustomEncoding_CreatesPipeReader()
+    {
+        // Arrange
+        var content = "test";
+        var encoding = Encoding.UTF32;
+
+        // Act
+        var pipeReader = Utilities.CreatePipeReaderFromString(content, encoding);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public void CreatePipeReaderFromString_WithNullEncoding_UsesUtf8()
+    {
+        // Arrange
+        var content = "test";
+
+        // Act
+        var pipeReader = Utilities.CreatePipeReaderFromString(content, null);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public void CreatePipeReaderFromBytes_CreatesPipeReader()
+    {
+        // Arrange
+        var data = Encoding.UTF8.GetBytes("test").AsMemory();
+
+        // Act
+        var pipeReader = Utilities.CreatePipeReaderFromBytes(data);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public void CreatePipeReaderFromBytes_WithEmptyData_CreatesPipeReader()
+    {
+        // Arrange
+        var data = ReadOnlyMemory<byte>.Empty;
+
+        // Act
+        var pipeReader = Utilities.CreatePipeReaderFromBytes(data);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromStreamAsync_WithValidStream_CreatesPipeReader()
+    {
+        // Arrange
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
+
+        // Act
+        var pipeReader = await Utilities.CreatePipeReaderFromStreamAsync(stream);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromStreamAsync_WithEmptyStream_CreatesPipeReader()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+
+        // Act
+        var pipeReader = await Utilities.CreatePipeReaderFromStreamAsync(stream);
+
+        // Assert
+        Assert.NotNull(pipeReader);
+        pipeReader.Complete();
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromStreamAsync_WithCancellation_Throws()
+    {
+        // Arrange
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+        {
+            await Utilities.CreatePipeReaderFromStreamAsync(stream, cts.Token);
+        });
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromFileAsync_WithValidFile_CreatesPipeReader()
+    {
+        // Arrange
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(tempFile, "test");
+
+            // Act
+            var pipeReader = await Utilities.CreatePipeReaderFromFileAsync(tempFile);
+
+            // Assert
+            Assert.NotNull(pipeReader);
+            pipeReader.Complete();
+            await pipeReader.CompleteAsync();
+        }
+        finally
+        {
+            try { File.Delete(tempFile); } catch { }
+        }
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromFileAsync_WithEmptyFile_CreatesPipeReader()
+    {
+        // Arrange
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            // Act
+            var pipeReader = await Utilities.CreatePipeReaderFromFileAsync(tempFile);
+
+            // Assert
+            Assert.NotNull(pipeReader);
+            pipeReader.Complete();
+            await pipeReader.CompleteAsync();
+        }
+        finally
+        {
+            try { File.Delete(tempFile); } catch { }
+        }
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromFileAsync_WithCancellation_Throws()
+    {
+        // Arrange
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(tempFile, "test");
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            // Act & Assert
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+            {
+                await Utilities.CreatePipeReaderFromFileAsync(tempFile, cts.Token);
+            });
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    [Fact]
+    public async Task CreatePipeReaderFromFileAsync_WithNonExistentFile_Throws()
+    {
+        // Arrange
+        var nonExistentFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".txt");
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<Exception>(async () =>
+        {
+            await Utilities.CreatePipeReaderFromFileAsync(nonExistentFile);
+        });
+    }
 }
 

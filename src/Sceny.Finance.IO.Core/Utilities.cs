@@ -204,7 +204,10 @@ public static class Utilities
 
         try
         {
-            return await CreatePipeReaderFromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
+            var reader = await CreatePipeReaderFromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
+            // Dispose the stream after creating the reader since all data has been copied
+            await stream.DisposeAsync().ConfigureAwait(false);
+            return reader;
         }
         catch
         {
