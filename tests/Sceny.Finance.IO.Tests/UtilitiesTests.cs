@@ -101,6 +101,77 @@ public class UtilitiesTests
     }
 
     [Fact]
+    public async Task ReadCompleteSequenceAsync_WithPreCanceledToken_Throws()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var data = Encoding.UTF8.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        await writer.FlushAsync();
+        writer.Complete();
+        
+        // Cancel the reader
+        var cts = new CancellationTokenSource();
+        cts.Cancel();
+        
+        // Act & Assert
+        // Should throw TaskCanceledException when cancellation token is already canceled
+        await Assert.ThrowsAnyAsync<TaskCanceledException>(async () =>
+        {
+            await Utilities.ReadCompleteSequenceAsync(pipe.Reader, cts.Token);
+        });
+        
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public async Task ReadCompleteSequenceAsync_WithEmptyBuffer_ContinuesReading()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        // Write empty buffer first
+        await writer.FlushAsync();
+        // Then write data
+        var data = Encoding.UTF8.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        await writer.FlushAsync();
+        writer.Complete();
+
+        // Act
+        var sequence = await Utilities.ReadCompleteSequenceAsync(pipe.Reader);
+
+        // Assert
+        Assert.True(sequence.Length > 0);
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public async Task ReadCompleteSequenceAsync_WithCompletedWriter_ReadsAllData()
+    {
+        // Arrange
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var data = Encoding.UTF8.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        writer.Complete();
+
+        // Act
+        var sequence = await Utilities.ReadCompleteSequenceAsync(pipe.Reader);
+
+        // Assert
+        Assert.Equal(data.Length, sequence.Length);
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
     public void SequenceToString_WithSingleSegment_ReturnsString()
     {
         // Arrange
@@ -199,26 +270,6 @@ public class UtilitiesTests
 
         // Assert
         Assert.Equal(0, sequence.Length);
-        pipe.Reader.Complete();
-    }
-
-    [Fact]
-    public async Task ReadCompleteSequenceAsync_WithCompletedReader_ReturnsSequence()
-    {
-        // Arrange
-        var pipe = new Pipe();
-        var writer = pipe.Writer;
-        var data = Encoding.UTF8.GetBytes("test");
-        var span = writer.GetSpan(data.Length);
-        data.CopyTo(span);
-        writer.Advance(data.Length);
-        writer.Complete();
-
-        // Act
-        var sequence = await Utilities.ReadCompleteSequenceAsync(pipe.Reader);
-
-        // Assert
-        Assert.Equal(data.Length, sequence.Length);
         pipe.Reader.Complete();
     }
 

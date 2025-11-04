@@ -144,5 +144,91 @@ public class ConfiguredReaderTests
             await configuredReader.GetTransactionsAsync(account, cts.Token).ToListAsync();
         });
     }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithFileSource_UsesAsyncMethod()
+    {
+        // Arrange
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(tempFile, "AccountId,AccountName\nACC001,Test");
+            var source = new FileSource(tempFile);
+            var reader = new CsvSourceReader();
+            var configuredReader = new ConfiguredReader(source, reader);
+
+            // Act
+            var accounts = await configuredReader.GetAccountsAsync().ToListAsync();
+
+            // Assert
+            Assert.Single(accounts);
+            Assert.Equal("ACC001", accounts[0].Id);
+        }
+        finally
+        {
+            try { File.Delete(tempFile); } catch { }
+        }
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithFileSource_UsesAsyncMethod()
+    {
+        // Arrange
+        var tempFile = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(tempFile, "Date,Amount\n2024-01-15,100.50");
+            var source = new FileSource(tempFile);
+            var reader = new CsvSourceReader();
+            var configuredReader = new ConfiguredReader(source, reader);
+            var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+
+            // Act
+            var transactions = await configuredReader.GetTransactionsAsync(account).ToListAsync();
+
+            // Assert
+            Assert.Single(transactions);
+            Assert.Equal(100.50m, transactions[0].Amount);
+        }
+        finally
+        {
+            try { File.Delete(tempFile); } catch { }
+        }
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithStreamSource_UsesAsyncMethod()
+    {
+        // Arrange
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes("AccountId,AccountName\nACC001,Test"));
+        var source = new StreamSource(stream);
+        var reader = new CsvSourceReader();
+        var configuredReader = new ConfiguredReader(source, reader);
+
+        // Act
+        var accounts = await configuredReader.GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithStreamSource_UsesAsyncMethod()
+    {
+        // Arrange
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes("Date,Amount\n2024-01-15,100.50"));
+        var source = new StreamSource(stream);
+        var reader = new CsvSourceReader();
+        var configuredReader = new ConfiguredReader(source, reader);
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+
+        // Act
+        var transactions = await configuredReader.GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(100.50m, transactions[0].Amount);
+    }
 }
 

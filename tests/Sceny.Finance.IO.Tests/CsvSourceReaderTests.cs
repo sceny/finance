@@ -423,6 +423,257 @@ public class CsvSourceReaderTests
         Assert.Equal("Test Account", accounts[0].Name);
     }
 
+    // Line Ending Handling
+    [Fact]
+    public async Task GetAccountsAsync_WithCarriageReturnOnly_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\rACC001,Test\r";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithCarriageReturnLineFeed_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\r\nACC001,Test\r\n";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithMixedLineEndings_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\nACC001,Test\r\nACC002,Test2\n";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        // CSV reader only returns the first account from the first data row
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    // Quoted Field Handling
+    [Fact]
+    public async Task GetAccountsAsync_WithQuotedFieldAtEnd_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\n\"ACC001\",\"Test\"";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithQuotedFieldAndDelimiterAtEnd_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\n\"ACC001\",\"Test,\"";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithQuotedFieldFollowedByDelimiter_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\n\"ACC001\",\"Test\",";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithQuotedFieldEndingAtLineEnd_HandlesCorrectly()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\n\"ACC001\",\"Test Account\"";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+        Assert.Equal("Test Account", accounts[0].Name);
+    }
+
+    // Column Mapping
+    [Fact]
+    public async Task GetAccountsAsync_WithMappedColumnName_UsesMapping()
+    {
+        // Arrange
+        var csv = "ID,Name\nACC001,Test";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options =>
+        {
+            options.ColumnMapping["AccountId"] = "ID";
+            options.ColumnMapping["AccountName"] = "Name";
+        }).GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithUnmappedColumn_UsesDirectLookup()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName\nACC001,Test";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options =>
+        {
+            // Remove AccountId from mapping to force direct lookup
+            options.ColumnMapping.Remove("AccountId");
+        }).GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal("ACC001", accounts[0].Id);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithColumnIndexOutOfRange_HandlesGracefully()
+    {
+        // Arrange
+        var csv = "AccountId\nACC001";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        // Should handle missing columns gracefully
+        Assert.Single(accounts);
+    }
+
+    // Account Type Parsing
+    [Fact]
+    public async Task GetAccountsAsync_WithInvalidAccountType_UsesDefault()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName,Type\nACC001,Test,INVALID";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options =>
+        {
+            options.DefaultAccountType = AccountType.Savings;
+        }).GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal(AccountType.Savings, accounts[0].Type);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithEmptyAccountType_UsesDefault()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName,Type\nACC001,Test,";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options =>
+        {
+            options.DefaultAccountType = AccountType.Savings;
+        }).GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal(AccountType.Savings, accounts[0].Type);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithInvalidAccountTypeEnum_UsesDefault()
+    {
+        // Arrange
+        var csv = "AccountId,AccountName,Type\nACC001,Test,NOTVALID";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options =>
+        {
+            options.DefaultAccountType = AccountType.Savings;
+        }).GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal(AccountType.Savings, accounts[0].Type);
+    }
+
+    // Transaction Type Inference
+    [Fact]
+    public async Task GetTransactionsAsync_WithInvalidTransactionType_UsesAmountInference()
+    {
+        // Arrange
+        var csv = "Date,Amount,Type\n2024-01-15,100.50,INVALID";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(TransactionType.Credit, transactions[0].Type);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithEmptyTransactionType_UsesAmountInference()
+    {
+        // Arrange
+        var csv = "Date,Amount,Type\n2024-01-15,100.50,";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(TransactionType.Credit, transactions[0].Type);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithInvalidTransactionTypeEnum_UsesAmountInference()
+    {
+        // Arrange
+        var csv = "Date,Amount,Type\n2024-01-15,-50.25,NOTVALID";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(TransactionType.Debit, transactions[0].Type);
+    }
+
     [Fact]
     public void CsvSourceReaderBuilder_WithAllOptions_ConfiguresCorrectly()
     {

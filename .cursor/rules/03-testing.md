@@ -1,12 +1,15 @@
 # Testing Requirements
 
 ## Test Coverage
-- **Minimum 90% code coverage** for all new code
-- **All tests MUST pass** - no exceptions
+- **Minimum 90% line coverage** for all new code
+- **Minimum 90% branch coverage** for all new code
+- **All tests MUST pass** - no exceptions (100% pass rate required)
 - Test both success and error scenarios
 - Test all configuration options
 - Test cancellation tokens
 - Test edge cases (empty files, invalid data, etc.)
+- Test all conditional branches (if/else, switch, ternary operators)
+- Test all loop variations (early exit, continue, break conditions)
 
 ## Test Patterns
 - Use `FinanceReader` API in tests (not direct ISourceReader usage)
