@@ -1,6 +1,5 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using System.IO.Pipelines;
 using System.Text;
 using Sceny.Finance.IO;
 using Sceny.Finance.IO.Plugin.File.Ofx;
@@ -51,10 +50,7 @@ public class OfxParsingBenchmarks
     [Benchmark]
     public async Task ParseAccountsFromOfx()
     {
-        var reader = CreatePipeReader(_ofxData);
-        var ofxReader = new OfxSourceReader();
-        
-        await foreach (var account in ofxReader.GetAccountsAsync(reader))
+        await foreach (var account in FinanceReader.FromBytes(_ofxData).AsOfx().GetAccountsAsync())
         {
             _ = account.Id;
         }
@@ -63,24 +59,10 @@ public class OfxParsingBenchmarks
     [Benchmark]
     public async Task ParseTransactionsFromOfx()
     {
-        var reader = CreatePipeReader(_ofxData);
-        var ofxReader = new OfxSourceReader();
-        
-        await foreach (var transaction in ofxReader.GetTransactionsAsync(_testAccount, reader))
+        await foreach (var transaction in FinanceReader.FromBytes(_ofxData).AsOfx().GetTransactionsAsync(_testAccount))
         {
             _ = transaction.Amount;
         }
-    }
-
-    private static PipeReader CreatePipeReader(byte[] data)
-    {
-        var pipe = new Pipe();
-        var writer = pipe.Writer;
-        var span = writer.GetSpan(data.Length);
-        data.CopyTo(span);
-        writer.Advance(data.Length);
-        writer.Complete();
-        return pipe.Reader;
     }
 }
 

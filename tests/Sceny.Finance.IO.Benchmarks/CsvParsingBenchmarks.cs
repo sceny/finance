@@ -1,6 +1,5 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using System.IO.Pipelines;
 using System.Text;
 using Sceny.Finance.IO;
 using Sceny.Finance.IO.Plugin.File.Csv;
@@ -24,10 +23,7 @@ public class CsvParsingBenchmarks
     [Benchmark]
     public async Task ParseAccountsFromCsv()
     {
-        var reader = CreatePipeReader(_csvData);
-        var csvReader = new CsvSourceReader();
-        
-        await foreach (var account in csvReader.GetAccountsAsync(reader))
+        await foreach (var account in FinanceReader.FromBytes(_csvData).AsCsv().GetAccountsAsync())
         {
             _ = account.Id;
         }
@@ -36,24 +32,10 @@ public class CsvParsingBenchmarks
     [Benchmark]
     public async Task ParseTransactionsFromCsv()
     {
-        var reader = CreatePipeReader(_csvData);
-        var csvReader = new CsvSourceReader();
-        
-        await foreach (var transaction in csvReader.GetTransactionsAsync(_testAccount, reader))
+        await foreach (var transaction in FinanceReader.FromBytes(_csvData).AsCsv().GetTransactionsAsync(_testAccount))
         {
             _ = transaction.Amount;
         }
-    }
-
-    private static PipeReader CreatePipeReader(byte[] data)
-    {
-        var pipe = new Pipe();
-        var writer = pipe.Writer;
-        var span = writer.GetSpan(data.Length);
-        data.CopyTo(span);
-        writer.Advance(data.Length);
-        writer.Complete();
-        return pipe.Reader;
     }
 }
 

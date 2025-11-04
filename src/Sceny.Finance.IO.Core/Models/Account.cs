@@ -34,3 +34,4 @@ public readonly struct Account
         return new Account(id, name, type, currency);
     }
 }
+

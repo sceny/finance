@@ -111,5 +111,106 @@ public static class Utilities
     {
         return value.AsMemory();
     }
+
+    /// <summary>
+    /// Creates a PipeReader from a string with zero-allocation pattern.
+    /// Uses GetSpan/Advance pattern for optimal performance.
+    /// </summary>
+    /// <param name="content">The string content to convert</param>
+    /// <param name="encoding">The encoding to use (default: UTF-8)</param>
+    /// <returns>A PipeReader containing the encoded string content</returns>
+    public static PipeReader CreatePipeReaderFromString(string content, System.Text.Encoding? encoding = null)
+    {
+        encoding ??= System.Text.Encoding.UTF8;
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var bytes = encoding.GetBytes(content);
+        var span = writer.GetSpan(bytes.Length);
+        bytes.CopyTo(span);
+        writer.Advance(bytes.Length);
+        writer.Complete();
+        return pipe.Reader;
+    }
+
+    /// <summary>
+    /// Creates a PipeReader from a byte array with zero-allocation pattern.
+    /// Uses GetSpan/Advance pattern for optimal performance.
+    /// </summary>
+    /// <param name="data">The byte data to convert</param>
+    /// <returns>A PipeReader containing the byte data</returns>
+    public static PipeReader CreatePipeReaderFromBytes(ReadOnlyMemory<byte> data)
+    {
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var span = writer.GetSpan(data.Length);
+        data.Span.CopyTo(span);
+        writer.Advance(data.Length);
+        writer.Complete();
+        return pipe.Reader;
+    }
+
+    /// <summary>
+    /// Creates a PipeReader from a Stream for production use.
+    /// The stream is copied to the pipe asynchronously.
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>A PipeReader containing the stream data</returns>
+    public static async Task<PipeReader> CreatePipeReaderFromStreamAsync(
+        System.IO.Stream stream,
+        CancellationToken cancellationToken = default)
+    {
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+
+        try
+        {
+            var buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false)) > 0)
+            {
+                var span = writer.GetSpan(bytesRead);
+                buffer.AsSpan(0, bytesRead).CopyTo(span);
+                writer.Advance(bytesRead);
+            }
+
+            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            await writer.CompleteAsync().ConfigureAwait(false);
+        }
+
+        return pipe.Reader;
+    }
+
+    /// <summary>
+    /// Creates a PipeReader from a file path for production use.
+    /// </summary>
+    /// <param name="filePath">The path to the file</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>A PipeReader containing the file data</returns>
+    public static async Task<PipeReader> CreatePipeReaderFromFileAsync(
+        string filePath,
+        CancellationToken cancellationToken = default)
+    {
+        var stream = new System.IO.FileStream(
+            filePath,
+            System.IO.FileMode.Open,
+            System.IO.FileAccess.Read,
+            System.IO.FileShare.Read,
+            bufferSize: 8192,
+            useAsync: true);
+
+        try
+        {
+            return await CreatePipeReaderFromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            await stream.DisposeAsync().ConfigureAwait(false);
+            throw;
+        }
+    }
 }
 

@@ -1,6 +1,5 @@
-using System.IO.Pipelines;
-using System.Text;
 using System.Linq;
+using System.Text;
 using Sceny.Finance.IO;
 using Sceny.Finance.IO.Plugin.File.Csv;
 
@@ -13,11 +12,9 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName,Type,Currency\nACC001,Checking Account,Checking,USD\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
 
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -33,12 +30,9 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,Date,Amount\nACC001,2024-01-15,100.50\n";
-        var options = new CsvOptions { DateFormat = "yyyy-MM-dd" };
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader(options);
 
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options => options.DateFormat = "yyyy-MM-dd").GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -50,12 +44,9 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId;AccountName;Type\nACC001;Savings;Savings\n";
-        var options = new CsvOptions { Delimiter = ';' };
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader(options);
 
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options => options.Delimiter = ';').GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -69,11 +60,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "AccountId,Date,Amount,Description\nACC001,2024-01-15,100.50,Test Transaction\nACC001,2024-01-16,-50.25,Debit\n";
         var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Equal(2, transactions.Count);
@@ -88,18 +76,16 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "ID,PostDate,Amt,Notes\nACC001,2024-01-15,100.50,Test\n";
-        var options = new CsvOptions();
-        options.ColumnMapping["AccountId"] = "ID";
-        options.ColumnMapping["Date"] = "PostDate";
-        options.ColumnMapping["Amount"] = "Amt";
-        options.ColumnMapping["Description"] = "Notes";
-        
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader(options);
 
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv(options =>
+        {
+            options.ColumnMapping["AccountId"] = "ID";
+            options.ColumnMapping["Date"] = "PostDate";
+            options.ColumnMapping["Amount"] = "Amt";
+            options.ColumnMapping["Description"] = "Notes";
+        }).GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -113,11 +99,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "AccountId,Date,Amount\nACC001,2024-01-15,100.50\nACC001,2024-01-16,-50.25\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Equal(2, transactions.Count);
@@ -145,11 +128,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = string.Empty;
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Empty(accounts);
@@ -160,12 +140,9 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "ACC001,Checking Account,Checking,USD\n";
-        var options = new CsvOptions { HasHeaders = false };
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader(options);
 
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options => options.HasHeaders = false).GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Empty(accounts); // No headers means no account parsing
@@ -176,11 +153,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountName,Type,Currency\nChecking Account,Checking,USD\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Empty(accounts);
@@ -191,11 +165,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName,Type\n,Checking Account,Checking\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Empty(accounts);
@@ -206,11 +177,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,Type,Currency\nACC001,Checking,USD\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -223,11 +191,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName\n\"ACC001\",\"Checking, Account\"\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -240,11 +205,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName\nACC001,Checking\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -256,12 +218,9 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName\nACC001,Checking\n";
-        var options = new CsvOptions { DefaultCurrency = "EUR" };
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader(options);
 
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv(options => options.DefaultCurrency = "EUR").GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -273,11 +232,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName\nACC001,Account\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -290,11 +246,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = string.Empty;
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -306,11 +259,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount,Description\nINVALID-DATE,100.50,Test\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -322,11 +272,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount,Description\n2024-01-15,INVALID,Test\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -338,11 +285,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount,Description\n2024-01-15,100.50,Test\n\n2024-01-16,-50.25,Debit\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Equal(2, transactions.Count);
@@ -354,11 +298,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount\n2024-01-15,100.50\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -371,11 +312,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount,Description\n2024-01-15,100.50,Test\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -388,11 +326,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount,Type\n2024-01-15,100.50,Transfer\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -405,11 +340,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount\n2024-01-15,0.00\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -421,13 +353,10 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date\tAmount\tDescription\n2024-01-15\t100.50\tTest\n";
-        var options = new CsvOptions { Delimiter = '\t' };
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader(options);
 
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv(options => options.Delimiter = '\t').GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -440,15 +369,13 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount\n2024-01-15,100.50\n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
         {
-            await csvReader.GetTransactionsAsync(account, reader, cts.Token).ToListAsync();
+            await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account, cts.Token).ToListAsync();
         });
     }
 
@@ -457,15 +384,13 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName\nACC001,Test\n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
         {
-            await csvReader.GetAccountsAsync(reader, cts.Token).ToListAsync();
+            await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync(cts.Token).ToListAsync();
         });
     }
 
@@ -475,11 +400,8 @@ public class CsvSourceReaderTests
         // Arrange
         var csv = "Date,Amount,Description\n  2024-01-15  ,  100.50  ,  Test  \n";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var transactions = await csvReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -492,11 +414,8 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,AccountName\n  ACC001  ,  Test Account  \n";
-        var reader = CreatePipeReader(csv);
-        var csvReader = new CsvSourceReader();
-
         // Act
-        var accounts = await csvReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(csv).AsCsv().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -523,16 +442,5 @@ public class CsvSourceReaderTests
         Assert.NotNull(reader);
     }
 
-    private static PipeReader CreatePipeReader(string content)
-    {
-        var pipe = new Pipe();
-        var writer = pipe.Writer;
-        var bytes = Encoding.UTF8.GetBytes(content);
-        var span = writer.GetSpan(bytes.Length);
-        bytes.CopyTo(span);
-        writer.Advance(bytes.Length);
-        writer.Complete();
-        return pipe.Reader;
-    }
 }
 

@@ -1,6 +1,5 @@
-using System.IO.Pipelines;
-using System.Text;
 using System.Linq;
+using System.Text;
 using Sceny.Finance.IO;
 using Sceny.Finance.IO.Plugin.File.Ofx;
 
@@ -29,11 +28,9 @@ DATA:OFXSGML
 </STMTTRNRS>
 </BANKMSGSRSV1>
 </OFX>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
 
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -76,11 +73,8 @@ DATA:OFXSGML
 </BANKMSGSRSV1>
 </OFX>";
         var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Equal(2, transactions.Count);
@@ -102,13 +96,10 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var options = new OfxOptions { DateTimeFormat = "yyyyMMddHHmmss" };
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader(options);
 
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx(options => options.DateTimeFormat = "yyyyMMddHHmmss").GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -129,13 +120,9 @@ DATA:OFXSGML
 <ACCTTYPE>CREDITCARD</ACCTTYPE>
 </BANKACCTFROM>";
         
-        var reader1 = CreatePipeReader(ofxSavings);
-        var reader2 = CreatePipeReader(ofxCredit);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var account1 = await ofxReader.GetAccountsAsync(reader1).FirstAsync();
-        var account2 = await ofxReader.GetAccountsAsync(reader2).FirstAsync();
+        var account1 = await FinanceReader.FromString(ofxSavings).AsOfx().GetAccountsAsync().FirstAsync();
+        var account2 = await FinanceReader.FromString(ofxCredit).AsOfx().GetAccountsAsync().FirstAsync();
 
         // Assert
         Assert.Equal(AccountType.Savings, account1.Type);
@@ -161,11 +148,8 @@ DATA:OFXSGML
     {
         // Arrange
         var ofx = string.Empty;
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Empty(accounts);
@@ -179,11 +163,8 @@ DATA:OFXSGML
 <BANKID>123456789</BANKID>
 <ACCTTYPE>CHECKING</ACCTTYPE>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -197,11 +178,8 @@ DATA:OFXSGML
         var ofx = @"<BANKACCTFROM>
 <ACCTTYPE>CHECKING</ACCTTYPE>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -215,11 +193,8 @@ DATA:OFXSGML
         var ofx = @"<BANKACCTFROM>
 <ACCTID>ACC001</ACCTID>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -233,11 +208,8 @@ DATA:OFXSGML
         var ofx = @"<BANKACCTFROM>
 <ACCTID>ACC001</ACCTID>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -252,11 +224,8 @@ DATA:OFXSGML
 <ACCTID>ACC001</ACCTID>
 <ACCTTYPE>INVALID</ACCTTYPE>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Single(accounts);
@@ -270,11 +239,8 @@ DATA:OFXSGML
         var ofx = @"<BANKACCTFROM>
 <ACCTID></ACCTID>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
         // Assert
         Assert.Empty(accounts);
@@ -286,11 +252,8 @@ DATA:OFXSGML
         // Arrange
         var ofx = string.Empty;
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -303,11 +266,8 @@ DATA:OFXSGML
         var ofx = @"<BANKTRANLIST>
 </BANKTRANLIST>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -323,11 +283,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -343,11 +300,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Empty(transactions);
@@ -363,11 +317,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -384,11 +335,8 @@ DATA:OFXSGML
 <MEMO>Test</MEMO>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -406,11 +354,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -426,13 +371,10 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var options = new OfxOptions { DateTimeFormat = "yyyyMMddHHmmss" };
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader(options);
 
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx(options => options.DateTimeFormat = "yyyyMMddHHmmss").GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -449,11 +391,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -470,11 +409,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -492,11 +428,8 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Single(transactions);
@@ -532,11 +465,8 @@ DATA:OFXSGML
 <FITID>FIT004</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
-
         // Act
-        var transactions = await ofxReader.GetTransactionsAsync(account, reader).ToListAsync();
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
         // Assert
         Assert.Equal(4, transactions.Count);
@@ -553,15 +483,13 @@ DATA:OFXSGML
         var ofx = @"<BANKACCTFROM>
 <ACCTID>ACC001</ACCTID>
 </BANKACCTFROM>";
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
         {
-            await ofxReader.GetAccountsAsync(reader, cts.Token).ToListAsync();
+            await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync(cts.Token).ToListAsync();
         });
     }
 
@@ -575,15 +503,13 @@ DATA:OFXSGML
 <FITID>FIT001</FITID>
 </STMTTRN>";
         var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
-        var reader = CreatePipeReader(ofx);
-        var ofxReader = new OfxSourceReader();
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
         {
-            await ofxReader.GetTransactionsAsync(account, reader, cts.Token).ToListAsync();
+            await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account, cts.Token).ToListAsync();
         });
     }
 
@@ -600,11 +526,8 @@ DATA:OFXSGML
 <ACCTID>ACC{i}</ACCTID>
 <ACCTTYPE>{accountTypes[i]}</ACCTTYPE>
 </BANKACCTFROM>";
-            var reader = CreatePipeReader(ofx);
-            var ofxReader = new OfxSourceReader();
-
             // Act
-            var accounts = await ofxReader.GetAccountsAsync(reader).ToListAsync();
+            var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
 
             // Assert
             Assert.Single(accounts);
@@ -627,16 +550,5 @@ DATA:OFXSGML
         Assert.NotNull(reader);
     }
 
-    private static PipeReader CreatePipeReader(string content)
-    {
-        var pipe = new Pipe();
-        var writer = pipe.Writer;
-        var bytes = Encoding.UTF8.GetBytes(content);
-        var span = writer.GetSpan(bytes.Length);
-        bytes.CopyTo(span);
-        writer.Advance(bytes.Length);
-        writer.Complete();
-        return pipe.Reader;
-    }
 }
 
