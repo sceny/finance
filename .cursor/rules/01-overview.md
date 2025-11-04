@@ -39,6 +39,7 @@ This is a zero-allocation financial data I/O library that uses System.IO.Pipelin
 - **Builders**: `*SourceReaderBuilder` suffix (CsvSourceReaderBuilder, OfxSourceReaderBuilder)
 - **Extensions**: `*SourceBuilderExtensions` suffix (CsvSourceBuilderExtensions, OfxSourceBuilderExtensions)
 - **Namespaces**: `Sceny.Finance.IO` for core, `Sceny.Finance.IO.Plugin.File.*` for providers
+- **See**: `07-code-quality.md` for detailed naming principles and guidelines (purpose-driven names, domain terminology, test naming patterns)
 
 ## File Organization
 

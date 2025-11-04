@@ -1,0 +1,55 @@
+# Task Completion Criteria
+
+## Required Commands and Checks
+
+Before completing any task, the following commands MUST be run and all criteria MUST be met:
+
+### 1. Build Verification
+```bash
+dotnet build
+```
+- **Requirement**: Build must succeed with no errors or warnings
+- **Action if failed**: Fix all compilation errors and warnings before proceeding
+
+### 2. Test Execution and Coverage
+```bash
+dotnet test
+```
+- **Requirement**: All tests must pass (100% pass rate)
+- **Line Coverage**: Minimum 90% line coverage required
+- **Branch Coverage**: Minimum 90% branch coverage required
+- **Action if failed**: 
+  - Fix failing tests
+  - Add missing test cases to achieve coverage requirements
+  - Verify all conditional branches are tested
+
+### 3. Benchmark Verification
+```bash
+dotnet run --project tests/Sceny.Finance.IO.Benchmarks
+```
+- **Requirement**: All benchmarks must show **zero allocations** (0 B allocated)
+- **Verification**: Check `MemoryDiagnoser` output for allocation metrics
+- **Action if failed**: 
+  - Identify and fix allocation sources
+  - Use `ArrayPool<T>` for necessary allocations
+  - Verify use of `ReadOnlySpan<T>` and `ReadOnlyMemory<T>` in hot paths
+  - Ensure `System.IO.Pipelines` is used correctly
+
+## Completion Checklist
+
+Before marking a task as complete:
+- [ ] `dotnet build` succeeds without errors or warnings
+- [ ] `dotnet test` passes with 100% test pass rate
+- [ ] Test coverage meets 90% line coverage minimum
+- [ ] Test coverage meets 90% branch coverage minimum
+- [ ] All benchmarks run without allocations (0 B allocated)
+- [ ] All diagnostic code (`[#ai_diagnostic]`) has been removed
+- [ ] Code follows project standards and patterns
+
+## Notes
+
+- Coverage reports can be generated using coverage tools if needed
+- Benchmark allocations should be verified using `[MemoryDiagnoser]` attribute
+- If coverage is below 90%, add missing test cases before completing the task
+- If benchmarks show allocations, refactor code to eliminate them before completing the task
+
