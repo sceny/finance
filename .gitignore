@@ -287,3 +287,8 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# BenchmarkDotNet generated files
+BenchmarkDotNet.Artifacts/
+*.BenchmarkDotNet.Artifacts/
+**/BenchmarkDotNet.Artifacts/
