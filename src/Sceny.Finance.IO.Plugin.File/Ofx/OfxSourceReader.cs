@@ -10,14 +10,9 @@ namespace Sceny.Finance.IO.Plugin.File.Ofx;
 /// OFX source reader implementation.
 /// Parses OFX files using System.IO.Pipelines for zero-allocation streaming.
 /// </summary>
-public sealed class OfxSourceReader : ISourceReader
+public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
 {
-    private readonly OfxOptions _options;
-
-    public OfxSourceReader(OfxOptions? options = null)
-    {
-        _options = options ?? new OfxOptions();
-    }
+    private readonly OfxOptions _options = options ?? new OfxOptions();
 
     public async IAsyncEnumerable<Account> GetAccountsAsync(
         PipeReader reader,

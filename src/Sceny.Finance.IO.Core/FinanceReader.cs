@@ -16,8 +16,7 @@ public static class FinanceReader
     /// <returns>A source builder for the file</returns>
     public static SourceBuilder<FileSource> FromFile(string filePath)
     {
-        var source = new FileSource(filePath);
-        return new SourceBuilder<FileSource>(source);
+        return new(new(filePath));
     }
 
     /// <summary>
@@ -28,8 +27,7 @@ public static class FinanceReader
     /// <returns>A source builder for the stream</returns>
     public static SourceBuilder<StreamSource> FromStream(Stream stream, bool disposeStream = false)
     {
-        var source = new StreamSource(stream, disposeStream);
-        return new SourceBuilder<StreamSource>(source);
+        return new(new(stream, disposeStream));
     }
 
     /// <summary>
@@ -39,8 +37,7 @@ public static class FinanceReader
     /// <returns>A source builder for the memory data</returns>
     public static SourceBuilder<MemorySource> FromBytes(ReadOnlyMemory<byte> data)
     {
-        var source = new MemorySource(data);
-        return new SourceBuilder<MemorySource>(source);
+        return new(new(data));
     }
 
     /// <summary>
@@ -51,8 +48,7 @@ public static class FinanceReader
     /// <returns>A source builder for the string</returns>
     public static SourceBuilder<StringSource> FromString(string content, System.Text.Encoding? encoding = null)
     {
-        var source = new StringSource(content, encoding);
-        return new SourceBuilder<StringSource>(source);
+        return new(new(content, encoding));
     }
 }
 

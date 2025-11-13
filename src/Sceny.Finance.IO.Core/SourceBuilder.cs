@@ -5,20 +5,11 @@ namespace Sceny.Finance.IO;
 /// This is format-agnostic - format-specific methods are provided via extension methods in provider projects.
 /// </summary>
 /// <typeparam name="TSource">The type of source being built</typeparam>
-public class SourceBuilder<TSource> where TSource : ISource
+public class SourceBuilder<TSource>(TSource source) where TSource : ISource
 {
     /// <summary>
     /// Gets the source being built.
     /// </summary>
-    public TSource Source { get; }
-
-    /// <summary>
-    /// Creates a new SourceBuilder for the specified source.
-    /// </summary>
-    /// <param name="source">The source to build</param>
-    internal SourceBuilder(TSource source)
-    {
-        Source = source ?? throw new ArgumentNullException(nameof(source));
-    }
+    public TSource Source { get; } = source ?? throw new ArgumentNullException(nameof(source));
 }
 

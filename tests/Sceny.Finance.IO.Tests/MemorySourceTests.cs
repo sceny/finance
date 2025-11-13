@@ -17,6 +17,7 @@ public class MemorySourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.True(source.Data.Span.SequenceEqual(data.Span));
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
@@ -33,6 +34,7 @@ public class MemorySourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.True(source.Data.IsEmpty);
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();

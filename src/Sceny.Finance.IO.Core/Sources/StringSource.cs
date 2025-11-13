@@ -6,26 +6,22 @@ namespace Sceny.Finance.IO.Sources;
 /// <summary>
 /// Represents a string-based data source.
 /// </summary>
-public sealed class StringSource : ISource
+public sealed class StringSource(string content, Encoding? encoding = null) : ISource
 {
-    private readonly string _content;
-    private readonly Encoding _encoding;
+    public string Content { get; } = EnsureContent(content, nameof(content));
 
-    /// <summary>
-    /// Creates a new StringSource for the specified string content.
-    /// </summary>
-    /// <param name="content">The string content</param>
-    /// <param name="encoding">The encoding to use (default: UTF-8)</param>
-    public StringSource(string content, Encoding? encoding = null)
-    {
-        _content = content ?? throw new ArgumentNullException(nameof(content));
-        _encoding = encoding ?? Encoding.UTF8;
-    }
+    public Encoding Encoding { get; } = encoding ?? Encoding.UTF8;
 
     /// <inheritdoc/>
     public PipeReader GetPipeReader(CancellationToken cancellationToken = default)
     {
-        return Utilities.CreatePipeReaderFromString(_content, _encoding);
+        return Utilities.CreatePipeReaderFromString(Content, Encoding);
+    }
+
+    private static string EnsureContent(string? value, string paramName)
+    {
+        ArgumentNullException.ThrowIfNull(value, paramName);
+        return value;
     }
 }
 

@@ -17,6 +17,8 @@ public class StringSourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.Equal(content, source.Content);
+        Assert.Equal(Encoding.UTF8, source.Encoding);
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
@@ -30,19 +32,11 @@ public class StringSourceTests
     }
 
     [Fact]
-    public void Constructor_WithEmptyString_DoesNotThrow()
+    public void Constructor_WithEmptyString_AllowsEmptyContent()
     {
-        // Arrange
-        var content = string.Empty;
-
-        // Act
-        var source = new StringSource(content);
-
-        // Assert
+        var source = new StringSource(string.Empty);
         Assert.NotNull(source);
-        var pipeReader = source.GetPipeReader();
-        Assert.NotNull(pipeReader);
-        pipeReader.Complete();
+        Assert.Equal(string.Empty, source.Content);
     }
 
     [Fact]
@@ -57,6 +51,7 @@ public class StringSourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.Equal(encoding, source.Encoding);
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
@@ -73,6 +68,7 @@ public class StringSourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.Equal(Encoding.UTF8, source.Encoding);
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
@@ -96,14 +92,8 @@ public class StringSourceTests
     [Fact]
     public void GetPipeReader_WithEmptyString_ReturnsPipeReader()
     {
-        // Arrange
-        var content = string.Empty;
-
-        // Act
-        var source = new StringSource(content);
+        var source = new StringSource(string.Empty);
         var pipeReader = source.GetPipeReader();
-
-        // Assert
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
     }

@@ -32,6 +32,13 @@ public class OfxOptionsTests
     }
 
     [Fact]
+    public void DateFormat_WithInvalidValue_Throws()
+    {
+        var options = new OfxOptions();
+        Assert.Throws<ArgumentException>(() => options.DateFormat = " ");
+    }
+
+    [Fact]
     public void DateTimeFormat_CanBeSet()
     {
         // Arrange
@@ -42,6 +49,13 @@ public class OfxOptionsTests
 
         // Assert
         Assert.Equal("yyyyMMddHHmmss.fff", options.DateTimeFormat);
+    }
+
+    [Fact]
+    public void DateTimeFormat_WithInvalidValue_Throws()
+    {
+        var options = new OfxOptions();
+        Assert.Throws<ArgumentNullException>(() => options.DateTimeFormat = null!);
     }
 
     [Fact]
@@ -82,6 +96,17 @@ public class OfxOptionsTests
 
         // Assert
         Assert.Equal(Encoding.UTF32, options.Encoding);
+    }
+
+    [Fact]
+    public void Encoding_WithNull_DefaultsToUtf8()
+    {
+        var options = new OfxOptions
+        {
+            Encoding = null!
+        };
+
+        Assert.Equal(Encoding.UTF8, options.Encoding);
     }
 }
 

@@ -14,6 +14,7 @@ public sealed class CsvSourceReaderBuilder
     /// </summary>
     public CsvSourceReaderBuilder WithDateFormat(string dateFormat)
     {
+        ArgumentNullException.ThrowIfNull(dateFormat);
         _options.DateFormat = dateFormat;
         return this;
     }
@@ -32,6 +33,7 @@ public sealed class CsvSourceReaderBuilder
     /// </summary>
     public CsvSourceReaderBuilder WithEncoding(Encoding encoding)
     {
+        ArgumentNullException.ThrowIfNull(encoding);
         _options.Encoding = encoding;
         return this;
     }
@@ -50,6 +52,8 @@ public sealed class CsvSourceReaderBuilder
     /// </summary>
     public CsvSourceReaderBuilder MapColumn(string targetColumn, string csvColumnName)
     {
+        ArgumentNullException.ThrowIfNull(targetColumn);
+        ArgumentNullException.ThrowIfNull(csvColumnName);
         _options.ColumnMapping[targetColumn] = csvColumnName;
         return this;
     }

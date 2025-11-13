@@ -16,8 +16,7 @@ public static class CsvSourceBuilderExtensions
     /// <returns>A configured reader for CSV format</returns>
     public static ConfiguredReader AsCsv<TSource>(this SourceBuilder<TSource> builder) where TSource : ISource
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         var reader = new CsvSourceReader();
         return new ConfiguredReader(builder.Source, reader);
@@ -32,10 +31,8 @@ public static class CsvSourceBuilderExtensions
     /// <returns>A configured reader for CSV format</returns>
     public static ConfiguredReader AsCsv<TSource>(this SourceBuilder<TSource> builder, Action<CsvOptions> configure) where TSource : ISource
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
-        if (configure == null)
-            throw new ArgumentNullException(nameof(configure));
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configure);
 
         var options = new CsvOptions();
         configure(options);

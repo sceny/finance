@@ -5,21 +5,11 @@ namespace Sceny.Finance.IO.Sources;
 /// <summary>
 /// Represents a stream-based data source.
 /// </summary>
-public sealed class StreamSource : ISource
+public sealed class StreamSource(System.IO.Stream stream, bool disposeStream = false) : ISource
 {
-    private readonly System.IO.Stream _stream;
-    private readonly bool _disposeStream;
+    public System.IO.Stream Stream { get; } = EnsureReadableStream(stream, nameof(stream));
 
-    /// <summary>
-    /// Creates a new StreamSource for the specified stream.
-    /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="disposeStream">Whether to dispose the stream when done (default: false)</param>
-    public StreamSource(System.IO.Stream stream, bool disposeStream = false)
-    {
-        _stream = stream ?? throw new ArgumentNullException(nameof(stream));
-        _disposeStream = disposeStream;
-    }
+    public bool DisposeStream { get; } = disposeStream;
 
     /// <inheritdoc/>
     /// <remarks>
@@ -30,7 +20,7 @@ public sealed class StreamSource : ISource
     {
         // For stream sources, we need to read asynchronously but the interface requires sync
         // This will block - consider using GetPipeReaderAsync() instead
-        return Utilities.CreatePipeReaderFromStreamAsync(_stream, cancellationToken).GetAwaiter().GetResult();
+        return Utilities.CreatePipeReaderFromStreamAsync(Stream, cancellationToken).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -38,15 +28,23 @@ public sealed class StreamSource : ISource
     /// </summary>
     public async Task<PipeReader> GetPipeReaderAsync(CancellationToken cancellationToken = default)
     {
-        var reader = await Utilities.CreatePipeReaderFromStreamAsync(_stream, cancellationToken).ConfigureAwait(false);
+        var reader = await Utilities.CreatePipeReaderFromStreamAsync(Stream, cancellationToken).ConfigureAwait(false);
         
-        if (_disposeStream)
+        if (DisposeStream)
         {
             // Dispose the stream after creating the reader
-            await _stream.DisposeAsync().ConfigureAwait(false);
+            await Stream.DisposeAsync().ConfigureAwait(false);
         }
 
         return reader;
+    }
+
+    private static System.IO.Stream EnsureReadableStream(System.IO.Stream? value, string paramName)
+    {
+        ArgumentNullException.ThrowIfNull(value, paramName);
+        if (!value.CanRead)
+            throw new ArgumentException("Stream must be readable.", paramName);
+        return value;
     }
 }
 

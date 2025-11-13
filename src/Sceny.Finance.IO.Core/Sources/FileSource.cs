@@ -5,18 +5,9 @@ namespace Sceny.Finance.IO.Sources;
 /// <summary>
 /// Represents a file-based data source.
 /// </summary>
-public sealed class FileSource : ISource
+public sealed class FileSource(string filePath) : ISource
 {
-    private readonly string _filePath;
-
-    /// <summary>
-    /// Creates a new FileSource for the specified file path.
-    /// </summary>
-    /// <param name="filePath">The path to the file</param>
-    public FileSource(string filePath)
-    {
-        _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
-    }
+    public string FilePath { get; } = ValidatePath(filePath, nameof(filePath));
 
     /// <inheritdoc/>
     /// <remarks>
@@ -27,7 +18,7 @@ public sealed class FileSource : ISource
     {
         // For file sources, we need to read asynchronously but the interface requires sync
         // This will block - consider using GetPipeReaderAsync() instead
-        return Utilities.CreatePipeReaderFromFileAsync(_filePath, cancellationToken).GetAwaiter().GetResult();
+        return Utilities.CreatePipeReaderFromFileAsync(FilePath, cancellationToken).GetAwaiter().GetResult();
     }
 
     /// <summary>
@@ -35,7 +26,13 @@ public sealed class FileSource : ISource
     /// </summary>
     public async Task<PipeReader> GetPipeReaderAsync(CancellationToken cancellationToken = default)
     {
-        return await Utilities.CreatePipeReaderFromFileAsync(_filePath, cancellationToken).ConfigureAwait(false);
+        return await Utilities.CreatePipeReaderFromFileAsync(FilePath, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static string ValidatePath(string path, string paramName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path, paramName, "File path must be provided.");
+        return path;
     }
 }
 

@@ -14,6 +14,7 @@ public sealed class OfxSourceReaderBuilder
     /// </summary>
     public OfxSourceReaderBuilder WithDateFormat(string dateFormat)
     {
+        ArgumentNullException.ThrowIfNull(dateFormat);
         _options.DateFormat = dateFormat;
         return this;
     }
@@ -23,6 +24,7 @@ public sealed class OfxSourceReaderBuilder
     /// </summary>
     public OfxSourceReaderBuilder WithDateTimeFormat(string dateTimeFormat)
     {
+        ArgumentNullException.ThrowIfNull(dateTimeFormat);
         _options.DateTimeFormat = dateTimeFormat;
         return this;
     }
@@ -41,6 +43,7 @@ public sealed class OfxSourceReaderBuilder
     /// </summary>
     public OfxSourceReaderBuilder WithEncoding(Encoding encoding)
     {
+        ArgumentNullException.ThrowIfNull(encoding);
         _options.Encoding = encoding;
         return this;
     }

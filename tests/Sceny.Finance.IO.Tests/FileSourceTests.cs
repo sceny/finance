@@ -19,6 +19,7 @@ public class FileSourceTests
 
             // Assert
             Assert.NotNull(source);
+            Assert.Equal(tempFile, source.FilePath);
             pipeReader = source.GetPipeReader();
             Assert.NotNull(pipeReader);
             pipeReader.Complete();
@@ -35,6 +36,12 @@ public class FileSourceTests
     {
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new FileSource(null!));
+    }
+
+    [Fact]
+    public void Constructor_WithWhitespacePath_ThrowsArgumentException()
+    {
+        Assert.Throws<ArgumentException>(() => new FileSource("   "));
     }
 
     [Fact]

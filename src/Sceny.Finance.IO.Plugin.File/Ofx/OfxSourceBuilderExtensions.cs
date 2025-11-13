@@ -16,8 +16,7 @@ public static class OfxSourceBuilderExtensions
     /// <returns>A configured reader for OFX format</returns>
     public static ConfiguredReader AsOfx<TSource>(this SourceBuilder<TSource> builder) where TSource : ISource
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
+        ArgumentNullException.ThrowIfNull(builder);
 
         var reader = new OfxSourceReader();
         return new ConfiguredReader(builder.Source, reader);
@@ -32,10 +31,8 @@ public static class OfxSourceBuilderExtensions
     /// <returns>A configured reader for OFX format</returns>
     public static ConfiguredReader AsOfx<TSource>(this SourceBuilder<TSource> builder, Action<OfxOptions> configure) where TSource : ISource
     {
-        if (builder == null)
-            throw new ArgumentNullException(nameof(builder));
-        if (configure == null)
-            throw new ArgumentNullException(nameof(configure));
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(configure);
 
         var options = new OfxOptions();
         configure(options);

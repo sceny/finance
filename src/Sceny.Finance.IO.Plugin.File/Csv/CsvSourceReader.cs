@@ -10,15 +10,10 @@ namespace Sceny.Finance.IO.Plugin.File.Csv;
 /// CSV source reader implementation.
 /// Parses CSV files using System.IO.Pipelines for zero-allocation streaming.
 /// </summary>
-public sealed class CsvSourceReader : ISourceReader
+public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
 {
-    private readonly CsvOptions _options;
+    private readonly CsvOptions _options = options ?? new CsvOptions();
     private static readonly ArrayPool<Range> RangePool = ArrayPool<Range>.Shared;
-
-    public CsvSourceReader(CsvOptions? options = null)
-    {
-        _options = options ?? new CsvOptions();
-    }
 
     public async IAsyncEnumerable<Account> GetAccountsAsync(
         PipeReader reader,

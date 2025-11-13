@@ -123,10 +123,35 @@ public class CsvOptionsTests
         var options = new CsvOptions();
 
         // Act
-        options.DefaultCurrency = "EUR";
+        options.DefaultCurrency = "eur";
 
         // Assert
         Assert.Equal("EUR", options.DefaultCurrency);
+    }
+
+    [Fact]
+    public void DateFormat_WithNull_Throws()
+    {
+        var options = new CsvOptions();
+        Assert.Throws<ArgumentException>(() => options.DateFormat = " ");
+    }
+
+    [Fact]
+    public void DefaultCurrency_WithNull_Throws()
+    {
+        var options = new CsvOptions();
+        Assert.Throws<ArgumentException>(() => options.DefaultCurrency = "");
+    }
+
+    [Fact]
+    public void Encoding_WithNull_DefaultsToUtf8()
+    {
+        var options = new CsvOptions
+        {
+            Encoding = null!
+        };
+
+        Assert.Equal(Encoding.UTF8, options.Encoding);
     }
 }
 

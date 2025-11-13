@@ -7,21 +7,10 @@ namespace Sceny.Finance.IO;
 /// Wraps a source and reader together to provide a configured reader for financial data.
 /// This class combines the ISource (data source) with ISourceReader (format parser).
 /// </summary>
-public sealed class ConfiguredReader
+public sealed class ConfiguredReader(ISource source, ISourceReader reader)
 {
-    private readonly ISource _source;
-    private readonly ISourceReader _reader;
-
-    /// <summary>
-    /// Creates a new ConfiguredReader combining a source and reader.
-    /// </summary>
-    /// <param name="source">The data source</param>
-    /// <param name="reader">The format reader</param>
-    public ConfiguredReader(ISource source, ISourceReader reader)
-    {
-        _source = source ?? throw new ArgumentNullException(nameof(source));
-        _reader = reader ?? throw new ArgumentNullException(nameof(reader));
-    }
+    private readonly ISource _source = source ?? throw new ArgumentNullException(nameof(source));
+    private readonly ISourceReader _reader = reader ?? throw new ArgumentNullException(nameof(reader));
 
     /// <summary>
     /// Streams accounts as they are discovered from the source.

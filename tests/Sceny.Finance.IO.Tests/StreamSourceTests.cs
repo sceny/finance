@@ -17,6 +17,7 @@ public class StreamSourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.Same(stream, source.Stream);
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
@@ -40,6 +41,7 @@ public class StreamSourceTests
 
         // Assert
         Assert.NotNull(source);
+        Assert.True(source.DisposeStream);
         var pipeReader = source.GetPipeReader();
         Assert.NotNull(pipeReader);
         pipeReader.Complete();
@@ -124,6 +126,27 @@ public class StreamSourceTests
         {
             await source.GetPipeReaderAsync(cts.Token);
         });
+    }
+
+    [Fact]
+    public void Constructor_WithUnreadableStream_Throws()
+    {
+        using var stream = new WriteOnlyStream();
+        Assert.Throws<ArgumentException>(() => new StreamSource(stream));
+    }
+
+    private sealed class WriteOnlyStream : Stream
+    {
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => 0;
+        public override long Position { get => 0; set { } }
+        public override void Flush() { }
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) { }
     }
 }
 
