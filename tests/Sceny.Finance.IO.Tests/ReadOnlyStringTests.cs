@@ -153,19 +153,23 @@ public class ReadOnlyStringTests
     }
 
     [Fact]
-    public void Split_WithCharSeparator_ReturnsArray()
+    public void Split_WithCharSeparator_ReturnsEnumerator()
     {
         // Arrange
         ReadOnlyString ros = "a,b,c";
 
         // Act
-        var result = ros.Split(',');
+        var parts = new List<ReadOnlyString>();
+        foreach (var part in ros.Split(','))
+        {
+            parts.Add(part);
+        }
 
         // Assert
-        Assert.Equal(3, result.Length);
-        Assert.Equal("a", result[0].ToString());
-        Assert.Equal("b", result[1].ToString());
-        Assert.Equal("c", result[2].ToString());
+        Assert.Equal(3, parts.Count);
+        Assert.Equal("a", parts[0].ToString());
+        Assert.Equal("b", parts[1].ToString());
+        Assert.Equal("c", parts[2].ToString());
     }
 
     [Fact]
@@ -175,29 +179,17 @@ public class ReadOnlyStringTests
         ReadOnlyString ros = "a,,b,c";
 
         // Act
-        var result = ros.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var parts = new List<ReadOnlyString>();
+        foreach (var part in ros.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            parts.Add(part);
+        }
 
         // Assert
-        Assert.Equal(3, result.Length);
-        Assert.Equal("a", result[0].ToString());
-        Assert.Equal("b", result[1].ToString());
-        Assert.Equal("c", result[2].ToString());
-    }
-
-    [Fact]
-    public void Split_WithStringSeparator_ReturnsArray()
-    {
-        // Arrange
-        ReadOnlyString ros = "a||b||c";
-
-        // Act
-        var result = ros.Split("||");
-
-        // Assert
-        Assert.Equal(3, result.Length);
-        Assert.Equal("a", result[0].ToString());
-        Assert.Equal("b", result[1].ToString());
-        Assert.Equal("c", result[2].ToString());
+        Assert.Equal(3, parts.Count);
+        Assert.Equal("a", parts[0].ToString());
+        Assert.Equal("b", parts[1].ToString());
+        Assert.Equal("c", parts[2].ToString());
     }
 
     [Fact]
@@ -544,34 +536,14 @@ public class ReadOnlyStringTests
     }
 
     [Fact]
-    public void GetEnumerator_IteratesThroughCharacters()
+    public void Enumerate_IteratesThroughCharacters()
     {
         // Arrange
         ReadOnlyString ros = "abc";
 
         // Act
         var chars = new List<char>();
-        foreach (var c in ros)
-        {
-            chars.Add(c);
-        }
-
-        // Assert
-        Assert.Equal(3, chars.Count);
-        Assert.Equal('a', chars[0]);
-        Assert.Equal('b', chars[1]);
-        Assert.Equal('c', chars[2]);
-    }
-
-    [Fact]
-    public void GetEnumerator_NonGeneric_IteratesThroughCharacters()
-    {
-        // Arrange
-        ReadOnlyString ros = "abc";
-
-        // Act
-        var chars = new List<char>();
-        foreach (char c in (System.Collections.IEnumerable)ros)
+        foreach (var c in ros.Enumerate())
         {
             chars.Add(c);
         }
@@ -655,37 +627,49 @@ public class ReadOnlyStringTests
         ReadOnlyString ros = "test";
 
         // Act
-        var result = ros.Split(',');
+        var parts = new List<ReadOnlyString>();
+        foreach (var part in ros.Split(','))
+        {
+            parts.Add(part);
+        }
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal("test", result[0].ToString());
+        Assert.Single(parts);
+        Assert.Equal("test", parts[0].ToString());
     }
 
     [Fact]
-    public void Split_WithEmptyString_ReturnsEmptyArray()
+    public void Split_WithEmptyString_ReturnsEmptyEnumerator()
     {
         // Arrange
         ReadOnlyString ros = string.Empty;
 
         // Act
-        var result = ros.Split(',');
+        var parts = new List<ReadOnlyString>();
+        foreach (var part in ros.Split(','))
+        {
+            parts.Add(part);
+        }
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(parts);
     }
 
     [Fact]
-    public void Split_WithOnlySeparator_ReturnsEmptyArray()
+    public void Split_WithOnlySeparator_ReturnsEmptyEnumerator()
     {
         // Arrange
         ReadOnlyString ros = ",";
 
         // Act
-        var result = ros.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var parts = new List<ReadOnlyString>();
+        foreach (var part in ros.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            parts.Add(part);
+        }
 
         // Assert
-        Assert.Empty(result);
+        Assert.Empty(parts);
     }
 
     [Fact]
@@ -695,12 +679,16 @@ public class ReadOnlyStringTests
         ReadOnlyString ros = ",";
 
         // Act
-        var result = ros.Split(',');
+        var parts = new List<ReadOnlyString>();
+        foreach (var part in ros.Split(','))
+        {
+            parts.Add(part);
+        }
 
         // Assert
-        Assert.Equal(2, result.Length);
-        Assert.True(result[0].IsEmpty);
-        Assert.True(result[1].IsEmpty);
+        Assert.Equal(2, parts.Count);
+        Assert.True(parts[0].IsEmpty);
+        Assert.True(parts[1].IsEmpty);
     }
 
     [Fact]
@@ -880,14 +868,14 @@ public class ReadOnlyStringTests
     }
 
     [Fact]
-    public void GetEnumerator_WithEmptyString_ReturnsNoItems()
+    public void Enumerate_WithEmptyString_ReturnsNoItems()
     {
         // Arrange
         ReadOnlyString ros = string.Empty;
 
         // Act
         var count = 0;
-        foreach (var _ in ros)
+        foreach (var _ in ros.Enumerate())
         {
             count++;
         }

@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Buffers;
 using System.Globalization;
 
 namespace Sceny.Finance.IO;
@@ -12,8 +12,7 @@ public readonly struct ReadOnlyString :
     IComparable<ReadOnlyString>, 
     IEquatable<ReadOnlyString>,
     IParsable<ReadOnlyString>,
-    ISpanParsable<ReadOnlyString>,
-    IEnumerable<char>
+    ISpanParsable<ReadOnlyString>
 {
     private readonly ReadOnlyMemory<char> _memory;
 
@@ -118,65 +117,152 @@ public readonly struct ReadOnlyString :
     }
 
     /// <summary>
-    /// Splits the string by the specified delimiter.
+    /// Returns a zero-allocation enumerator for splitting by a single character.
     /// </summary>
-    public ReadOnlyString[] Split(char separator, StringSplitOptions options = StringSplitOptions.None)
+    public SplitEnumerator Split(char separator, StringSplitOptions options = StringSplitOptions.None)
     {
-        if (_memory.IsEmpty)
-            return Array.Empty<ReadOnlyString>();
-
-        var span = _memory.Span;
-        var parts = new List<ReadOnlyString>();
-        int start = 0;
-
-        for (int i = 0; i < span.Length; i++)
-        {
-            if (span[i] == separator)
-            {
-                if (start < i || options != StringSplitOptions.RemoveEmptyEntries)
-                {
-                    parts.Add(new ReadOnlyString(_memory.Slice(start, i - start)));
-                }
-                start = i + 1;
-            }
-        }
-
-        if (start < span.Length || options != StringSplitOptions.RemoveEmptyEntries)
-        {
-            parts.Add(new ReadOnlyString(_memory.Slice(start)));
-        }
-
-        return parts.ToArray();
+        return new SplitEnumerator(_memory, separator, options);
     }
 
     /// <summary>
-    /// Splits the string by the specified string separator.
+    /// Zero-allocation enumerator for splitting ReadOnlyString by a delimiter.
     /// </summary>
-    public ReadOnlyString[] Split(string separator, StringSplitOptions options = StringSplitOptions.None)
+    public ref struct SplitEnumerator
     {
-        var span = _memory.Span;
-        var parts = new List<ReadOnlyString>();
-        var separatorSpan = separator.AsSpan();
-        int start = 0;
+        private readonly ReadOnlyMemory<char> _memory;
+        private readonly char _separator;
+        private readonly StringSplitOptions _options;
+        private int _nextStart;
+        private int _segmentStart;
+        private int _segmentEnd;
+        private bool _afterSeparator;
 
-        while (start < span.Length)
+        internal SplitEnumerator(ReadOnlyMemory<char> memory, char separator, StringSplitOptions options)
         {
-            var index = span.Slice(start).IndexOf(separatorSpan);
-            if (index == -1)
-            {
-                parts.Add(new ReadOnlyString(_memory.Slice(start)));
-                break;
-            }
-
-            var actualIndex = start + index;
-            if (start < actualIndex || options != StringSplitOptions.RemoveEmptyEntries)
-            {
-                parts.Add(new ReadOnlyString(_memory.Slice(start, actualIndex - start)));
-            }
-            start = actualIndex + separatorSpan.Length;
+            _memory = memory;
+            _separator = separator;
+            _options = options;
+            _nextStart = 0;
+            _segmentStart = -1;
+            _segmentEnd = -1;
+            _afterSeparator = false;
         }
 
-        return parts.ToArray();
+        public ReadOnlyString Current
+        {
+            get
+            {
+                if (_segmentEnd == -1)
+                    throw new InvalidOperationException("Enumerator not started");
+                
+                var length = _segmentEnd - _segmentStart;
+                if (length == 0 && _segmentStart >= _memory.Length)
+                {
+                    // Empty segment at the end - return empty ReadOnlyString
+                    return default;
+                }
+                return new ReadOnlyString(_memory.Slice(_segmentStart, length));
+            }
+        }
+
+        public bool MoveNext()
+        {
+            if (_memory.IsEmpty)
+                return false;
+
+            var span = _memory.Span;
+
+            // If we're after a separator and at the end, yield empty segment if keeping empty entries
+            if (_afterSeparator && _nextStart >= span.Length)
+            {
+                if (_options != StringSplitOptions.RemoveEmptyEntries)
+                {
+                    // Create empty segment at the end (slice from end with length 0)
+                    _segmentStart = span.Length;
+                    _segmentEnd = span.Length;
+                    _nextStart = span.Length + 1; // Mark as done
+                    _afterSeparator = false;
+                    return true;
+                }
+                _nextStart = span.Length + 1; // Mark as done
+                _afterSeparator = false;
+                return false;
+            }
+
+            if (_nextStart > span.Length)
+                return false;
+
+            // Find next separator or end
+            var separatorIndex = -1;
+            for (int i = _nextStart; i < span.Length; i++)
+            {
+                if (span[i] == _separator)
+                {
+                    separatorIndex = i;
+                    break;
+                }
+            }
+
+            if (separatorIndex == -1)
+            {
+                // No more separators - yield final segment if we have content
+                if (_nextStart < span.Length)
+                {
+                    _segmentStart = _nextStart;
+                    _segmentEnd = span.Length;
+                    _nextStart = span.Length + 1; // Mark as done
+                    _afterSeparator = false;
+                    return true;
+                }
+                _nextStart = span.Length + 1; // Mark as done
+                _afterSeparator = false;
+                return false;
+            }
+
+            // Found separator at separatorIndex
+            // Yield segment from _nextStart to separatorIndex (before the separator)
+            var hasSegmentContent = _nextStart < separatorIndex;
+            
+            if (!hasSegmentContent && _options == StringSplitOptions.RemoveEmptyEntries)
+            {
+                // Skip empty segment, move to next
+                _nextStart = separatorIndex + 1;
+                // Check if separator is at the end - if so, we need to yield empty segment after it
+                if (_nextStart >= span.Length && _options != StringSplitOptions.RemoveEmptyEntries)
+                {
+                    _afterSeparator = true;
+                    return MoveNext(); // This will handle the empty segment after separator
+                }
+                return MoveNext();
+            }
+
+            // Yield this segment (before the separator)
+            _segmentStart = _nextStart;
+            _segmentEnd = separatorIndex;
+            _nextStart = separatorIndex + 1;
+            
+            // Check if separator is at the end - if so, mark that we need to yield empty segment after it
+            if (_nextStart >= span.Length)
+            {
+                _afterSeparator = true;
+            }
+            else
+            {
+                _afterSeparator = false;
+            }
+            
+            return true;
+        }
+
+        public void Reset()
+        {
+            _nextStart = 0;
+            _segmentStart = -1;
+            _segmentEnd = -1;
+            _afterSeparator = false;
+        }
+
+        public SplitEnumerator GetEnumerator() => this;
     }
 
     /// <summary>
@@ -331,40 +417,89 @@ public readonly struct ReadOnlyString :
 
     /// <summary>
     /// Parses a ReadOnlyString from a ReadOnlySpan&lt;char&gt;.
+    /// Uses ArrayPool to minimize allocations.
     /// </summary>
     public static ReadOnlyString Parse(ReadOnlySpan<char> s, IFormatProvider? provider)
     {
-        return new ReadOnlyString(s.ToArray().AsMemory());
-    }
+        if (s.IsEmpty)
+            return default;
 
-    /// <summary>
-    /// Attempts to parse a ReadOnlyString from a ReadOnlySpan&lt;char&gt;.
-    /// </summary>
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out ReadOnlyString result)
-    {
-        result = new ReadOnlyString(s.ToArray().AsMemory());
-        return true;
-    }
-
-    /// <summary>
-    /// Returns an enumerator that iterates through the characters.
-    /// </summary>
-    public IEnumerator<char> GetEnumerator()
-    {
-        var memory = _memory;
-        var length = memory.Length;
-        for (int i = 0; i < length; i++)
+        var pool = ArrayPool<char>.Shared;
+        var array = pool.Rent(s.Length);
+        try
         {
-            yield return memory.Span[i];
+            s.CopyTo(array);
+            return new ReadOnlyString(new ReadOnlyMemory<char>(array, 0, s.Length));
+        }
+        finally
+        {
+            pool.Return(array);
         }
     }
 
     /// <summary>
-    /// Returns an enumerator that iterates through the characters.
+    /// Attempts to parse a ReadOnlyString from a ReadOnlySpan&lt;char&gt;.
+    /// Uses ArrayPool to minimize allocations.
     /// </summary>
-    IEnumerator IEnumerable.GetEnumerator()
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out ReadOnlyString result)
     {
-        return GetEnumerator();
+        if (s.IsEmpty)
+        {
+            result = default;
+            return true;
+        }
+
+        var pool = ArrayPool<char>.Shared;
+        var array = pool.Rent(s.Length);
+        try
+        {
+            s.CopyTo(array);
+            result = new ReadOnlyString(new ReadOnlyMemory<char>(array, 0, s.Length));
+            return true;
+        }
+        finally
+        {
+            pool.Return(array);
+        }
+    }
+
+
+    /// <summary>
+    /// Returns a zero-allocation enumerator for iterating through characters.
+    /// </summary>
+    public CharEnumerator Enumerate()
+    {
+        return new CharEnumerator(_memory);
+    }
+
+    /// <summary>
+    /// Zero-allocation enumerator for iterating through characters.
+    /// </summary>
+    public ref struct CharEnumerator
+    {
+        private readonly ReadOnlyMemory<char> _memory;
+        private int _index;
+
+        internal CharEnumerator(ReadOnlyMemory<char> memory)
+        {
+            _memory = memory;
+            _index = -1;
+        }
+
+        public char Current => _memory.Span[_index];
+
+        public bool MoveNext()
+        {
+            _index++;
+            return _index < _memory.Length;
+        }
+
+        public void Reset()
+        {
+            _index = -1;
+        }
+
+        public CharEnumerator GetEnumerator() => this;
     }
 
     /// <summary>
