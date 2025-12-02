@@ -50,10 +50,20 @@ Before marking a task as complete:
 - [ ] All benchmarks run without allocations (0 B allocated)
 - [ ] All diagnostic code (`[#ai_diagnostic]`) has been removed
 - [ ] Code follows project standards and patterns
+- [ ] **Task Objective Verification**: The original task goal/objective has been successfully completed and verified
+- [ ] **No Regressions**: All existing tests pass; no unexpected regressions introduced
 
 ## Notes
 
+- Coverage and zero-allocation requirements are **mandatory global project standards** that must be achieved
+- **Do whatever is needed** to achieve these metrics (add tests, refactor code, etc.)
+- **Critical**: While working to achieve coverage and allocation requirements, ensure that the **original task objective/goal is still met and completed**
+- Do not lose sight of the task goal while addressing metrics requirements
+- **Preserve Existing Code**: Do not remove working/tested pre-existing code that is unrelated to the task
+- **Avoid Regressions**: Move forward with new changes without introducing unexpected regressions
+- **Regression Detection**: If any test failure or regression unrelated to the task is detected, **DO NOT proceed with changes that cause it** - revert behavior or ask for guidance if not possible
 - Coverage reports can be generated using coverage tools if needed
 - Benchmark allocations should be verified using `[MemoryDiagnoser]` attribute
 - If coverage is below 90%, add missing test cases before completing the task
 - If benchmarks show allocations, refactor code to eliminate them before completing the task
+- **Final Check**: Before marking complete, verify that both the metrics requirements AND the task objective have been achieved
