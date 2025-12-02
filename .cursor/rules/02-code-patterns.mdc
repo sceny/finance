@@ -1,6 +1,16 @@
+---
+description: Code patterns and implementation guidelines for Sceny.Finance.IO
+globs: ["**/*.cs"]
+alwaysApply: false
+---
+
 # Code Patterns
 
+**When writing code, ALWAYS follow these patterns:**
+
 ## Creating PipeReader (Zero-Allocation)
+
+**ALWAYS use Utilities helpers - never create PipeReader directly:**
 ```csharp
 // Use Utilities helpers for zero-allocation creation
 var reader = Utilities.CreatePipeReaderFromString(content);
@@ -10,6 +20,8 @@ var reader = await Utilities.CreatePipeReaderFromStreamAsync(stream);
 ```
 
 ## Using the Fluent API
+
+**When writing tests or examples, use this API pattern:**
 ```csharp
 // Simple usage
 var accounts = await FinanceReader.FromFile("data.csv").AsCsv().GetAccountsAsync().ToListAsync();
@@ -22,6 +34,8 @@ var transactions = await FinanceReader.FromBytes(data).AsOfx().GetTransactionsAs
 ```
 
 ## Extension Methods in Provider Projects
+
+**When creating new format providers, follow this pattern:**
 ```csharp
 // Provider projects expose format-specific methods
 public static class CsvSourceBuilderExtensions
@@ -43,6 +57,8 @@ public static class CsvSourceBuilderExtensions
 ```
 
 ## Source Implementation Pattern
+
+**When implementing a new ISource, follow this pattern:**
 ```csharp
 public sealed class FileSource : ISource
 {
@@ -60,6 +76,8 @@ public sealed class FileSource : ISource
 ```
 
 ## Reader Implementation Pattern
+
+**When implementing a new ISourceReader, follow this pattern:**
 ```csharp
 public sealed class CsvSourceReader : ISourceReader
 {
@@ -124,4 +142,3 @@ public sealed class CsvSourceReader : ISourceReader
 - Provider projects expose `AsCsv()`, `AsOfx()`, etc.
 - Two overloads: default options and configured options
 - Return `ConfiguredReader` for chaining
-

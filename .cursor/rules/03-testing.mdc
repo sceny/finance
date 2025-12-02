@@ -1,3 +1,9 @@
+---
+description: Testing requirements and patterns for Sceny.Finance.IO
+globs: ["**/*Test*.cs", "**/*Tests/**/*.cs", "**/*Benchmark*.cs", "**/*Benchmarks/**/*.cs"]
+alwaysApply: false
+---
+
 # Testing Requirements
 
 ## Test Coverage
@@ -21,4 +27,3 @@
 - All benchmarks must use `[MemoryDiagnoser]` to verify zero-allocation
 - Benchmarks should use `FinanceReader` API
 - Use `FromBytes()` for byte array data in benchmarks
-

@@ -1,9 +1,24 @@
+---
+description: Project overview and architecture principles for Sceny.Finance.IO
+globs: []
+alwaysApply: true
+---
+
 # Sceny.Finance.IO Project Overview
 
 ## Project Overview
+
 This is a zero-allocation financial data I/O library that uses System.IO.Pipelines for high-performance streaming. The library provides a fluent API for reading financial data from various sources (files, streams, HTTP, SignalR, message buses) and parsing different formats (CSV, OFX, etc.).
 
+**When working on this project, you MUST:**
+- Follow the architecture principles outlined below
+- Maintain zero-allocation requirements
+- Use the established naming conventions
+- Follow the file organization structure
+
 ## Architecture Principles
+
+**CRITICAL: All code changes MUST follow these principles:**
 
 ### 1. Source/Format Separation
 - **Sources** (ISource): Represent WHERE data comes from (FileSource, StreamSource, MemorySource, StringSource, HttpSource, SignalRSource, MessageBusSource)
@@ -12,12 +27,16 @@ This is a zero-allocation financial data I/O library that uses System.IO.Pipelin
 - **Provider Projects**: Format-specific extensions (e.g., Sceny.Finance.IO.Plugin.File) expose format-specific methods via extension methods
 
 ### 2. Fluent API Pattern
+
+**When implementing new features:**
 - **Entry Point**: `FinanceReader` static class provides `FromFile()`, `FromStream()`, `FromBytes()`, `FromString()`
 - **Source Builder**: `SourceBuilder<T>` is format-agnostic base class
 - **Format Extensions**: Provider projects expose `AsCsv()`, `AsOfx()`, etc. as extension methods on `SourceBuilder<T>`
 - **Configured Reader**: `ConfiguredReader` combines source + reader to provide `GetAccountsAsync()` and `GetTransactionsAsync()`
 
 ### 3. Zero-Allocation Requirements
+
+**MANDATORY: All code MUST follow these requirements:**
 - Use `System.IO.Pipelines` for all I/O operations
 - Use `ReadOnlySpan<T>` and `ReadOnlyMemory<T>` for zero-allocation access
 - Use `ReadOnlyString` for string data in domain models (Account, Transaction)
@@ -27,23 +46,29 @@ This is a zero-allocation financial data I/O library that uses System.IO.Pipelin
 - Verify zero-allocation with `MemoryDiagnoser` in benchmarks
 
 ### 4. Folder Organization
+
+**When adding new files, place them according to this structure:**
 - **Models/**: Domain models (Account, Transaction, AccountType, TransactionType)
 - **Sources/**: Source implementations (FileSource, StreamSource, MemorySource, StringSource)
 - **Root**: Core abstractions (ISource, ISourceReader, FinanceReader, SourceBuilder, ConfiguredReader, Utilities)
 - **Provider Projects**: Format-specific implementations (Csv/, Ofx/) with extension methods
 
 ### 5. Naming Conventions
+
+**ALWAYS use these naming patterns:**
 - **Sources**: `*Source` suffix (FileSource, StreamSource, etc.)
 - **Readers**: `*SourceReader` suffix (CsvSourceReader, OfxSourceReader)
 - **Options**: `*Options` suffix (CsvOptions, OfxOptions)
 - **Builders**: `*SourceReaderBuilder` suffix (CsvSourceReaderBuilder, OfxSourceReaderBuilder)
 - **Extensions**: `*SourceBuilderExtensions` suffix (CsvSourceBuilderExtensions, OfxSourceBuilderExtensions)
 - **Namespaces**: `Sceny.Finance.IO` for core, `Sceny.Finance.IO.Plugin.File.*` for providers
-- **See**: `07-code-quality.md` for detailed naming principles and guidelines (purpose-driven names, domain terminology, test naming patterns)
+
+**See `07-code-quality.mdc` for detailed naming principles and guidelines (purpose-driven names, domain terminology, test naming patterns).**
 
 ## File Organization
 
 ### Core Library Structure
+
 ```
 Sceny.Finance.IO.Core/
   - FinanceReader.cs (entry point)
@@ -65,6 +90,7 @@ Sceny.Finance.IO.Core/
 ```
 
 ### Provider Project Structure
+
 ```
 Sceny.Finance.IO.Plugin.File/
   - Formats/
@@ -79,4 +105,3 @@ Sceny.Finance.IO.Plugin.File/
       - OfxSourceReaderBuilder.cs
       - OfxSourceBuilderExtensions.cs (extension methods)
 ```
-

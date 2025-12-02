@@ -1,3 +1,9 @@
+---
+description: Performance guidelines and zero-allocation requirements for Sceny.Finance.IO
+globs: ["**/*.cs"]
+alwaysApply: false
+---
+
 # Performance Guidelines
 
 ## System.IO.Pipelines Usage
@@ -16,4 +22,3 @@
 - Use `ArrayPool<T>` for temporary buffers
 - Always return rented buffers to the pool
 - Use `Utilities.ByteArrayPool` and `Utilities.CharArrayPool` for shared pools
-

@@ -1,3 +1,9 @@
+---
+description: Error handling patterns and guidelines for Sceny.Finance.IO
+globs: ["**/*.cs"]
+alwaysApply: false
+---
+
 # Error Handling
 
 ## Source Errors
@@ -9,4 +15,3 @@
 - Invalid format: Skip invalid records, don't throw
 - Parse errors: Return empty enumerable or skip record
 - Cancellation: Throw `OperationCanceledException`
-

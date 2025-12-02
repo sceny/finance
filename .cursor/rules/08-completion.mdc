@@ -1,3 +1,9 @@
+---
+description: Task completion criteria and verification requirements for Sceny.Finance.IO
+globs: []
+alwaysApply: true
+---
+
 # Task Completion Criteria
 
 ## Required Commands and Checks
@@ -52,4 +58,3 @@ Before marking a task as complete:
 - Benchmark allocations should be verified using `[MemoryDiagnoser]` attribute
 - If coverage is below 90%, add missing test cases before completing the task
 - If benchmarks show allocations, refactor code to eliminate them before completing the task
-

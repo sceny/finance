@@ -1,3 +1,9 @@
+---
+description: Guidelines for extending Sceny.Finance.IO with new sources and formats
+globs: []
+alwaysApply: true
+---
+
 # Future Extensibility
 
 ## Adding New Sources
@@ -16,4 +22,3 @@
 - HttpSource: HTTP endpoint source
 - SignalRSource: SignalR connection source
 - MessageBusSource: Message bus subscription source
-
