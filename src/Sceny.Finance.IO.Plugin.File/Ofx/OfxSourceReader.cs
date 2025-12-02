@@ -10,11 +10,11 @@ namespace Sceny.Finance.IO.Plugin.File.Ofx;
 /// OFX source reader implementation.
 /// Parses OFX files using System.IO.Pipelines for zero-allocation streaming.
 /// </summary>
-public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
+public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader<OfxAccountProperties, OfxTransactionProperties>
 {
     private readonly OfxOptions _options = options ?? new OfxOptions();
 
-    public async IAsyncEnumerable<Account> GetAccountsAsync(
+    public async IAsyncEnumerable<Account<OfxAccountProperties>> GetAccountsAsync(
         PipeReader reader,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -123,19 +123,30 @@ public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
                 ? new ReadOnlyString("USD")
                 : new ReadOnlyString(text.AsMemory(currencyOffsetFinal, currencyLength));
 
-            yield return new Account(
+            var bankIdSpan2 = ExtractTagValue(textSpan, "BANKID", 0, out var bankIdOffset2);
+            var bankId = bankIdSpan2.IsEmpty ? default : new ReadOnlyString(text.AsMemory(bankIdOffset2, bankIdSpan2.Length));
+
+            var extended = CollectExtendedProperties(textSpan, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ACCTID", "BANKID", "ACCTTYPE", "DESC", "CURDEF" });
+
+            var properties = new OfxAccountProperties(
+                bankId: bankId,
+                extended: extended
+            );
+
+            yield return new Account<OfxAccountProperties>(
                 accountIdMemory,
                 accountNameMemory,
                 accountType,
-                currencyMemory
+                currencyMemory,
+                properties
             );
         }
 
         Utilities.AdvanceReader(reader, sequence);
     }
 
-    public async IAsyncEnumerable<Transaction> GetTransactionsAsync(
-        Account account,
+    public async IAsyncEnumerable<Transaction<OfxTransactionProperties>> GetTransactionsAsync(
+        Account<OfxAccountProperties> account,
         PipeReader reader,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -151,7 +162,7 @@ public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
         Utilities.AdvanceReader(reader, sequence);
     }
 
-    private IEnumerable<Transaction> ExtractTransactions(string text, Account account)
+    private IEnumerable<Transaction<OfxTransactionProperties>> ExtractTransactions(string text, Account<OfxAccountProperties> account)
     {
         var searchTag = "<STMTTRN>";
         var endTag = "</STMTTRN>";
@@ -203,7 +214,7 @@ public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
         return -1;
     }
 
-    private Transaction? ParseTransactionBlock(int blockStart, int blockLength, string text, Account account)
+    private Transaction<OfxTransactionProperties>? ParseTransactionBlock(int blockStart, int blockLength, string text, Account<OfxAccountProperties> account)
     {
         var blockSpan = text.AsSpan(blockStart, blockLength);
         
@@ -227,12 +238,17 @@ public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
         var memoMemory = memo.IsEmpty ? default : text.AsMemory(memoOffset, memo.Length);
         var fitidMemory = fitid.IsEmpty ? default : text.AsMemory(fitidOffset, fitid.Length);
 
-        return new Transaction(
+        var extended = CollectExtendedProperties(blockSpan, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "DTPOSTED", "TRNAMT", "MEMO", "NAME", "FITID", "TRNTYPE" });
+
+        var properties = new OfxTransactionProperties(extended: extended);
+
+        return new Transaction<OfxTransactionProperties>(
             account.Id,
             amount,
             date,
             memoMemory.IsEmpty ? default : new ReadOnlyString(memoMemory),
             transactionType,
+            properties,
             fitidMemory.IsEmpty ? default : new ReadOnlyString(fitidMemory)
         );
     }
@@ -424,6 +440,86 @@ public sealed class OfxSourceReader(OfxOptions? options = null) : ISourceReader
         }
 
         return amount >= 0 ? TransactionType.Credit : TransactionType.Debit;
+    }
+
+    private ReadOnlyExtended CollectExtendedProperties(ReadOnlySpan<char> block, HashSet<string> excludedTagNames)
+    {
+        var pool = ArrayPool<KeyValuePair<ReadOnlyString, ReadOnlyString>>.Shared;
+        var tempPairs = pool.Rent(100);
+        int pairCount = 0;
+        int searchStart = 0;
+
+        try
+        {
+            while (searchStart < block.Length)
+            {
+                var tagStart = block.Slice(searchStart).IndexOf('<');
+                if (tagStart == -1)
+                    break;
+
+                tagStart += searchStart;
+                var tagEnd = block.Slice(tagStart + 1).IndexOf('>');
+                if (tagEnd == -1)
+                    break;
+
+                tagEnd += tagStart + 1;
+                var tagNameSpan = block.Slice(tagStart + 1, tagEnd - tagStart - 1);
+                var tagName = tagNameSpan.ToString();
+
+                if (excludedTagNames.Contains(tagName))
+                {
+                    searchStart = tagEnd + 1;
+                    continue;
+                }
+
+                var valueStart = tagEnd + 1;
+                if (valueStart >= block.Length)
+                    break;
+
+                var remaining = block.Slice(valueStart);
+                var valueEnd = remaining.IndexOf('<');
+                if (valueEnd == -1)
+                    valueEnd = remaining.Length;
+                else
+                    valueEnd += valueStart;
+
+                if (valueEnd <= valueStart || valueEnd > block.Length)
+                {
+                    searchStart = valueStart;
+                    continue;
+                }
+
+                var valueLength = valueEnd - valueStart;
+                if (valueLength <= 0 || valueStart + valueLength > block.Length)
+                {
+                    searchStart = valueStart;
+                    continue;
+                }
+
+                var valueSpan = block.Slice(valueStart, valueLength).Trim();
+                if (valueSpan.Length > 0)
+                {
+                    var value = valueSpan.ToString();
+                    tempPairs[pairCount++] = new KeyValuePair<ReadOnlyString, ReadOnlyString>(
+                        new ReadOnlyString(tagName),
+                        new ReadOnlyString(value)
+                    );
+                }
+
+                searchStart = valueEnd;
+            }
+
+            if (pairCount == 0)
+                return default;
+
+            var pairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[pairCount];
+            Array.Copy(tempPairs, pairs, pairCount);
+            return new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(pairs));
+        }
+        finally
+        {
+            pool.Return(tempPairs);
+        }
     }
 }
 

@@ -6,7 +6,11 @@ namespace Sceny.Finance.IO;
 /// Defines the contract for source readers that extract financial data from various sources.
 /// Uses IAsyncEnumerable for reactive, streaming consumption.
 /// </summary>
-public interface ISourceReader
+/// <typeparam name="TAccountProperties">The account properties type for this reader</typeparam>
+/// <typeparam name="TTransactionProperties">The transaction properties type for this reader</typeparam>
+public interface ISourceReader<TAccountProperties, TTransactionProperties>
+    where TAccountProperties : struct, IProperties
+    where TTransactionProperties : struct, IProperties
 {
     /// <summary>
     /// Streams accounts as they are discovered from the source.
@@ -14,7 +18,7 @@ public interface ISourceReader
     /// <param name="reader">The pipeline reader providing the source data</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Async enumerable of discovered accounts</returns>
-    IAsyncEnumerable<Account> GetAccountsAsync(PipeReader reader, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<Account<TAccountProperties>> GetAccountsAsync(PipeReader reader, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Streams transactions for a specific account.
@@ -23,8 +27,8 @@ public interface ISourceReader
     /// <param name="reader">The pipeline reader providing the source data</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Async enumerable of transactions for the account</returns>
-    IAsyncEnumerable<Transaction> GetTransactionsAsync(
-        Account account,
+    IAsyncEnumerable<Transaction<TTransactionProperties>> GetTransactionsAsync(
+        Account<TAccountProperties> account,
         PipeReader reader,
         CancellationToken cancellationToken = default);
 }

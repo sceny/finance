@@ -20,7 +20,7 @@ public class CopyExtensionsTests
         var writer = FinanceWriter.ToString(outputSb).AsCsv();
 
         // Act
-        await reader.CopyAccountsToAsync(writer);
+        await reader.CopyAccountsToAsync<CsvAccountProperties, CsvTransactionProperties>(writer);
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
@@ -36,12 +36,12 @@ public class CopyExtensionsTests
         // Arrange
         var inputCsv = "AccountId,Date,Amount,Description\nACC001,2024-01-15,100.50,Test Transaction";
         var reader = FinanceReader.FromString(inputCsv).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var outputSb = new StringBuilder();
         var writer = FinanceWriter.ToString(outputSb).AsCsv();
 
         // Act
-        await reader.CopyTransactionsToAsync(account, writer);
+        await reader.CopyTransactionsToAsync<CsvAccountProperties, CsvTransactionProperties>(account, writer);
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
@@ -62,7 +62,7 @@ public class CopyExtensionsTests
         var writer = FinanceWriter.ToString(outputSb).AsCsv();
 
         // Act
-        await reader.CopyAllToAsync(writer);
+        await reader.CopyAllToAsync<CsvAccountProperties, CsvTransactionProperties>(writer);
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
@@ -76,12 +76,18 @@ public class CopyExtensionsTests
     {
         // Arrange
         var inputCsv = "AccountId,AccountName\nACC001,Test Account";
-        var reader = FinanceReader.FromString(inputCsv).AsCsv();
+        var csvReader = FinanceReader.FromString(inputCsv).AsCsv();
         var outputSb = new StringBuilder();
-        var writer = FinanceWriter.ToString(outputSb).AsOfx();
+        var ofxWriter = FinanceWriter.ToString(outputSb).AsOfx();
 
-        // Act
-        await reader.CopyAccountsToAsync(writer);
+        // Act - Use PropertyMapper to convert between formats
+        await ofxWriter.BeginWriteAsync();
+        await foreach (var csvAccount in csvReader.GetAccountsAsync())
+        {
+            var ofxAccount = PropertyMapper.MapProperties<CsvAccountProperties, OfxAccountProperties>(csvAccount);
+            await ofxWriter.WriteAccountAsync(ofxAccount);
+        }
+        await ofxWriter.EndWriteAsync();
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
@@ -95,13 +101,21 @@ public class CopyExtensionsTests
     {
         // Arrange
         var inputCsv = "AccountId,Date,Amount,Description\nACC001,2024-01-15,100.50,Test";
-        var reader = FinanceReader.FromString(inputCsv).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var csvReader = FinanceReader.FromString(inputCsv).AsCsv();
+        var csvAccount = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var outputSb = new StringBuilder();
-        var writer = FinanceWriter.ToString(outputSb).AsOfx();
+        var ofxWriter = FinanceWriter.ToString(outputSb).AsOfx();
 
-        // Act
-        await reader.CopyTransactionsToAsync(account, writer);
+        // Act - Use PropertyMapper to convert between formats
+        await ofxWriter.BeginWriteAsync();
+        var ofxAccount = PropertyMapper.MapProperties<CsvAccountProperties, OfxAccountProperties>(csvAccount);
+        await ofxWriter.WriteAccountAsync(ofxAccount);
+        await foreach (var csvTransaction in csvReader.GetTransactionsAsync(csvAccount))
+        {
+            var ofxTransaction = PropertyMapper.MapProperties<CsvTransactionProperties, OfxTransactionProperties>(csvTransaction);
+            await ofxWriter.WriteTransactionAsync(ofxTransaction);
+        }
+        await ofxWriter.EndWriteAsync();
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
@@ -116,12 +130,24 @@ public class CopyExtensionsTests
     {
         // Arrange
         var inputCsv = "AccountId,Date,Amount,Description\nACC001,2024-01-15,100.50,Test";
-        var reader = FinanceReader.FromString(inputCsv).AsCsv();
+        var csvReader = FinanceReader.FromString(inputCsv).AsCsv();
         var outputSb = new StringBuilder();
-        var writer = FinanceWriter.ToString(outputSb).AsOfx();
+        var ofxWriter = FinanceWriter.ToString(outputSb).AsOfx();
 
-        // Act
-        await reader.CopyAllToAsync(writer);
+        // Act - Use PropertyMapper to convert between formats
+        await ofxWriter.BeginWriteAsync();
+        await foreach (var csvAccount in csvReader.GetAccountsAsync())
+        {
+            var ofxAccount = PropertyMapper.MapProperties<CsvAccountProperties, OfxAccountProperties>(csvAccount);
+            await ofxWriter.WriteAccountAsync(ofxAccount);
+
+            await foreach (var csvTransaction in csvReader.GetTransactionsAsync(csvAccount))
+            {
+                var ofxTransaction = PropertyMapper.MapProperties<CsvTransactionProperties, OfxTransactionProperties>(csvTransaction);
+                await ofxWriter.WriteTransactionAsync(ofxTransaction);
+            }
+        }
+        await ofxWriter.EndWriteAsync();
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
@@ -155,7 +181,7 @@ public class CopyExtensionsTests
         // Arrange
         var inputCsv = "AccountId,Date,Amount\nACC001,2024-01-15,100.50";
         var reader = FinanceReader.FromString(inputCsv).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var outputSb = new StringBuilder();
         var writer = FinanceWriter.ToString(outputSb).AsCsv();
         var cts = new CancellationTokenSource();
@@ -190,7 +216,7 @@ public class CopyExtensionsTests
     public async Task CopyAccountsToAsync_WithNullReader_ThrowsArgumentNullException()
     {
         // Arrange
-        ConfiguredReader? reader = null;
+        ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>? reader = null;
         var outputSb = new StringBuilder();
         var writer = FinanceWriter.ToString(outputSb).AsCsv();
 
@@ -207,7 +233,7 @@ public class CopyExtensionsTests
         // Arrange
         var inputCsv = "AccountId,AccountName\nACC001,Test";
         var reader = FinanceReader.FromString(inputCsv).AsCsv();
-        ConfiguredWriter? writer = null;
+        ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>? writer = null;
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(async () =>

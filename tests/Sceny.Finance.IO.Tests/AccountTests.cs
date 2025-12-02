@@ -1,4 +1,5 @@
 using Sceny.Finance.IO;
+using Sceny.Finance.IO.Plugin.File.Csv;
 
 namespace Sceny.Finance.IO.Tests;
 
@@ -12,9 +13,10 @@ public class AccountTests
         var name = "Checking Account";
         var type = AccountType.Checking;
         var currency = "USD";
+        var properties = default(CsvAccountProperties);
 
         // Act
-        var account = Account.FromStrings(id, name, type, currency);
+        var account = Account<CsvAccountProperties>.FromStrings(id, name, type, currency, properties);
 
         // Assert
         Assert.Equal(id, account.Id);
@@ -31,9 +33,10 @@ public class AccountTests
         var name = "Savings Account";
         var type = AccountType.Savings;
         var currency = "EUR";
+        var properties = default(CsvAccountProperties);
 
         // Act
-        var account = new Account(id, name, type, currency);
+        var account = new Account<CsvAccountProperties>(id, name, type, currency, properties);
 
         // Assert
         Assert.Equal("ACC001", account.Id);
@@ -47,9 +50,10 @@ public class AccountTests
     {
         // Arrange
         ReadOnlyMemory<char> idMemory = "ACC001".AsMemory();
+        var properties = default(CsvAccountProperties);
 
         // Act
-        var account = new Account(idMemory, "Name", AccountType.Checking, "USD");
+        var account = new Account<CsvAccountProperties>(idMemory, "Name", AccountType.Checking, "USD", properties);
 
         // Assert - implicit conversion from ReadOnlyMemory<char> to ReadOnlyString
         Assert.Equal("ACC001", account.Id);
@@ -67,7 +71,7 @@ public class AccountTests
     public void Account_SupportsAllAccountTypes(AccountType accountType)
     {
         // Act
-        var account = Account.FromStrings("ID", "Name", accountType, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ID", "Name", accountType, "USD", default(CsvAccountProperties));
 
         // Assert
         Assert.Equal(accountType, account.Type);

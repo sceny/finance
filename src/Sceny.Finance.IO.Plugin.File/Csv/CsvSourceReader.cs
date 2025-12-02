@@ -10,12 +10,12 @@ namespace Sceny.Finance.IO.Plugin.File.Csv;
 /// CSV source reader implementation.
 /// Parses CSV files using System.IO.Pipelines for zero-allocation streaming.
 /// </summary>
-public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
+public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader<CsvAccountProperties, CsvTransactionProperties>
 {
     private readonly CsvOptions _options = options ?? new CsvOptions();
     private static readonly ArrayPool<Range> RangePool = ArrayPool<Range>.Shared;
 
-    public async IAsyncEnumerable<Account> GetAccountsAsync(
+    public async IAsyncEnumerable<Account<CsvAccountProperties>> GetAccountsAsync(
         PipeReader reader,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -48,8 +48,8 @@ public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
         Utilities.AdvanceReader(reader, sequence);
     }
 
-    public async IAsyncEnumerable<Transaction> GetTransactionsAsync(
-        Account account,
+    public async IAsyncEnumerable<Transaction<CsvTransactionProperties>> GetTransactionsAsync(
+        Account<CsvAccountProperties> account,
         PipeReader reader,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -205,7 +205,7 @@ public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
         }
     }
 
-    private Account? ParseAccountFromLine(Range lineRange, Dictionary<string, int> columnIndices, string text)
+    private Account<CsvAccountProperties>? ParseAccountFromLine(Range lineRange, Dictionary<string, int> columnIndices, string text)
     {
         var line = text[lineRange];
         var (columns, columnCount) = SplitLine(line, _options.Delimiter);
@@ -226,11 +226,24 @@ public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
             var currencyStr = GetColumnValue(columns, columnCount, columnIndices, text, lineRange.Start.Value, "Currency");
             var currency = currencyStr.Length == 0 ? new ReadOnlyString(_options.DefaultCurrency) : new ReadOnlyString(text.AsMemory(currencyStr.Start, currencyStr.Length));
 
-            return new Account(
+            var bankName = GetColumnValue(columns, columnCount, columnIndices, text, lineRange.Start.Value, "BankName", "Bank");
+            var branchCode = GetColumnValue(columns, columnCount, columnIndices, text, lineRange.Start.Value, "BranchCode", "Branch");
+
+            var extended = CollectExtendedProperties(columns, columnCount, columnIndices, text, lineRange.Start.Value, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "AccountId", "Id", "AccountName", "Name", "AccountType", "Type", "Currency", "BankName", "Bank", "BranchCode", "Branch" });
+
+            var properties = new CsvAccountProperties(
+                bankName: bankName.Length == 0 ? default : new ReadOnlyString(text.AsMemory(bankName.Start, bankName.Length)),
+                branchCode: branchCode.Length == 0 ? default : new ReadOnlyString(text.AsMemory(branchCode.Start, branchCode.Length)),
+                extended: extended,
+                attachments: default
+            );
+
+            return new Account<CsvAccountProperties>(
                 new ReadOnlyString(text.AsMemory(accountId.Start, accountId.Length)),
                 accountName.Length == 0 ? new ReadOnlyString(text.AsMemory(accountId.Start, accountId.Length)) : new ReadOnlyString(text.AsMemory(accountName.Start, accountName.Length)),
                 accountType,
-                currency
+                currency,
+                properties
             );
         }
         finally
@@ -239,7 +252,7 @@ public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
         }
     }
 
-    private Transaction? ParseTransactionFromLine(Range lineRange, Account account, Dictionary<string, int> columnIndices, string text)
+    private Transaction<CsvTransactionProperties>? ParseTransactionFromLine(Range lineRange, Account<CsvAccountProperties> account, Dictionary<string, int> columnIndices, string text)
     {
         var line = text[lineRange];
         var (columns, columnCount) = SplitLine(line, _options.Delimiter);
@@ -264,12 +277,20 @@ public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
             var transactionType = ParseTransactionType(typeStr, amount, text);
             var reference = GetColumnValue(columns, columnCount, columnIndices, text, lineRange.Start.Value, "Reference", "CheckNumber", "Ref");
 
-            return new Transaction(
+            var extended = CollectExtendedProperties(columns, columnCount, columnIndices, text, lineRange.Start.Value, new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "AccountId", "Id", "Date", "Amount", "Description", "Memo", "Notes", "Type", "TransactionType", "Reference", "CheckNumber", "Ref" });
+
+            var properties = new CsvTransactionProperties(
+                extended: extended,
+                attachments: default
+            );
+
+            return new Transaction<CsvTransactionProperties>(
                 account.Id,
                 amount,
                 date,
                 description.Length == 0 ? default : new ReadOnlyString(text.AsMemory(description.Start, description.Length)),
                 transactionType,
+                properties,
                 reference.Length == 0 ? default : new ReadOnlyString(text.AsMemory(reference.Start, reference.Length))
             );
         }
@@ -313,6 +334,58 @@ public sealed class CsvSourceReader(CsvOptions? options = null) : ISourceReader
         }
 
         return (0, 0);
+    }
+
+    private ReadOnlyExtended CollectExtendedProperties(Range[] columns, int columnCount, Dictionary<string, int> columnIndices, string text, int lineStart, HashSet<string> excludedColumnNames)
+    {
+        if (columnCount == 0)
+            return default;
+
+        var pool = ArrayPool<KeyValuePair<ReadOnlyString, ReadOnlyString>>.Shared;
+        var tempPairs = pool.Rent(columnCount);
+        int pairCount = 0;
+
+        try
+        {
+            foreach (var kvp in columnIndices)
+            {
+                var columnName = kvp.Key;
+                if (excludedColumnNames.Contains(columnName))
+                    continue;
+
+                var index = kvp.Value;
+                if (index >= columnCount)
+                    continue;
+
+                var range = columns[index];
+                var offsetStart = range.Start.Value + lineStart;
+                var offsetEnd = range.End.Value + lineStart;
+                var span = text.AsSpan(offsetStart, offsetEnd - offsetStart);
+                var trimmed = span.Trim();
+                var trimStart = span.IndexOf(trimmed);
+                var valueStart = offsetStart + trimStart;
+                var valueLength = trimmed.Length;
+
+                if (valueLength > 0)
+                {
+                    tempPairs[pairCount++] = new KeyValuePair<ReadOnlyString, ReadOnlyString>(
+                        new ReadOnlyString(columnName),
+                        new ReadOnlyString(text.AsMemory(valueStart, valueLength))
+                    );
+                }
+            }
+
+            if (pairCount == 0)
+                return default;
+
+            var pairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[pairCount];
+            Array.Copy(tempPairs, pairs, pairCount);
+            return new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(pairs));
+        }
+        finally
+        {
+            pool.Return(tempPairs);
+        }
     }
 
     private AccountType ParseAccountType((int Start, int Length) value, string text)

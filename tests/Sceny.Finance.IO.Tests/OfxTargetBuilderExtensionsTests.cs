@@ -73,7 +73,7 @@ public class OfxTargetBuilderExtensionsTests
             options.DateFormat = "MM/dd/yyyy";
             options.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
         });
-        var transaction = Transaction.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act
         await writer.BeginWriteAsync();

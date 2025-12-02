@@ -153,5 +153,35 @@ public class CsvOptionsTests
 
         Assert.Equal(Encoding.UTF8, options.Encoding);
     }
+
+    [Fact]
+    public void ColumnMapping_WithNull_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var options = new CsvOptions();
+
+        // Act & Assert - This tests the null check branch in ColumnMapping setter
+        Assert.Throws<ArgumentNullException>(() => options.ColumnMapping = null!);
+    }
+
+    [Fact]
+    public void DateFormat_WithWhitespace_ThrowsArgumentException()
+    {
+        // Arrange
+        var options = new CsvOptions();
+
+        // Act & Assert - This tests the whitespace check branch in DateFormat setter
+        Assert.Throws<ArgumentException>(() => options.DateFormat = "   ");
+    }
+
+    [Fact]
+    public void DefaultCurrency_WithWhitespace_ThrowsArgumentException()
+    {
+        // Arrange
+        var options = new CsvOptions();
+
+        // Act & Assert - This tests the whitespace check branch in DefaultCurrency setter
+        Assert.Throws<ArgumentException>(() => options.DefaultCurrency = "   ");
+    }
 }
 

@@ -72,7 +72,7 @@ DATA:OFXSGML
 </STMTTRNRS>
 </BANKMSGSRSV1>
 </OFX>";
-        var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -96,7 +96,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
 
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx(options => options.DateTimeFormat = "yyyyMMddHHmmss").GetTransactionsAsync(account).ToListAsync();
@@ -251,7 +251,7 @@ DATA:OFXSGML
     {
         // Arrange
         var ofx = string.Empty;
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -265,7 +265,7 @@ DATA:OFXSGML
         // Arrange
         var ofx = @"<BANKTRANLIST>
 </BANKTRANLIST>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -282,7 +282,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -299,7 +299,7 @@ DATA:OFXSGML
 <TRNAMT>INVALID</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -316,7 +316,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -334,7 +334,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <MEMO>Test</MEMO>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -353,7 +353,7 @@ DATA:OFXSGML
 <NAME>Test Name</NAME>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -371,7 +371,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
 
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx(options => options.DateTimeFormat = "yyyyMMddHHmmss").GetTransactionsAsync(account).ToListAsync();
@@ -390,7 +390,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -408,7 +408,7 @@ DATA:OFXSGML
 <TRNAMT>0.00</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -427,7 +427,7 @@ DATA:OFXSGML
 <TRNTYPE>XFER</TRNTYPE>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -464,7 +464,7 @@ DATA:OFXSGML
 <TRNTYPE>FEE</TRNTYPE>
 <FITID>FIT004</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
 
@@ -502,7 +502,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
@@ -545,7 +545,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -564,7 +564,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -583,7 +583,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -602,7 +602,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -620,7 +620,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -638,7 +638,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -657,7 +657,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -713,7 +713,7 @@ DATA:OFXSGML
 <TRNTYPE>INVALID</TRNTYPE>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -732,7 +732,7 @@ DATA:OFXSGML
 <TRNAMT>-100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -764,7 +764,7 @@ DATA:OFXSGML
 <TRNTYPE>DIV</TRNTYPE>
 <FITID>FIT003</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -792,7 +792,7 @@ DATA:OFXSGML
 <TRNTYPE>SELL</TRNTYPE>
 <FITID>FIT002</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -813,7 +813,7 @@ DATA:OFXSGML
 <TRNTYPE>UNKNOWN</TRNTYPE>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -833,7 +833,7 @@ DATA:OFXSGML
 <TRNTYPE>UNKNOWN</TRNTYPE>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -886,6 +886,226 @@ DATA:OFXSGML
     }
 
     [Fact]
+    public async Task GetAccountsAsync_WithEmptyAcctIdTag_ReturnsEmpty()
+    {
+        // Arrange - Test the branch where ACCTID tag exists but is empty/whitespace
+        var ofx = @"<OFX>
+<BANKMSGSRSV1>
+<STMTTRNRS>
+<STMTRS>
+<BANKACCTFROM>
+<ACCTID>   </ACCTID>
+<ACCTTYPE>CHECKING</ACCTTYPE>
+</BANKACCTFROM>
+</STMTRS>
+</STMTTRNRS>
+</BANKMSGSRSV1>
+</OFX>";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
+
+        // Assert - Should return empty because ACCTID tag exists but is empty
+        Assert.Empty(accounts);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithAcctTypeButNoAcctIdOrBankId_UsesUnknown()
+    {
+        // Arrange - Test the branch where we have ACCTTYPE but no ACCTID or BANKID
+        var ofx = @"<OFX>
+<BANKMSGSRSV1>
+<STMTTRNRS>
+<STMTRS>
+<BANKACCTFROM>
+<ACCTTYPE>CHECKING</ACCTTYPE>
+</BANKACCTFROM>
+</STMTRS>
+</STMTTRNRS>
+</BANKMSGSRSV1>
+</OFX>";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
+
+        // Assert - Should use UNKNOWN as account ID
+        Assert.Single(accounts);
+        Assert.Equal("UNKNOWN", accounts[0].Id.ToString());
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithBankAcctFromButNoAcctIdOrBankId_UsesUnknown()
+    {
+        // Arrange - Test the branch where we have BANKACCTFROM but no ACCTID or BANKID
+        var ofx = @"<OFX>
+<BANKMSGSRSV1>
+<STMTTRNRS>
+<STMTRS>
+<BANKACCTFROM>
+<ACCTTYPE>CHECKING</ACCTTYPE>
+</BANKACCTFROM>
+</STMTRS>
+</STMTTRNRS>
+</BANKMSGSRSV1>
+</OFX>";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
+
+        // Assert - Should use UNKNOWN as account ID
+        Assert.Single(accounts);
+        Assert.Equal("UNKNOWN", accounts[0].Id.ToString());
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneBrackets_ParsesCorrectly()
+    {
+        // Arrange - Test the branch where date has timezone brackets [offset:timezone]
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115[+05:00:EST]</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(new DateTime(2024, 1, 15), transactions[0].Date.Date);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneBracketsPlusOffset_ParsesCorrectly()
+    {
+        // Arrange - Test the branch where date has timezone brackets with + offset
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115[+05:00:EST]</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneBracketsMinusOffset_ParsesCorrectly()
+    {
+        // Arrange - Test the branch where date has timezone brackets with - offset
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115[-03:00:EST]</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneOffsetWithoutColon_ParsesCorrectly()
+    {
+        // Arrange - Test the branch where date has timezone offset without colon (e.g., +0500)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115+0500</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneOffsetWithColon_ParsesCorrectly()
+    {
+        // Arrange - Test the branch where date has timezone offset with colon (e.g., +05:00)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115+05:00</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateInvalidTimeValues_HandlesGracefully()
+    {
+        // Arrange - Test the branch where date has invalid time values (hour >= 24, minute >= 60, second >= 60)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115253070</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert - Should parse date only, ignoring invalid time
+        Assert.Single(transactions);
+        Assert.Equal(new DateTime(2024, 1, 15), transactions[0].Date.Date);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateMoreThan14Chars_ParsesTime()
+    {
+        // Arrange - Test the branch where date is more than 14 characters
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115103000123</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(10, transactions[0].Date.Hour);
+        Assert.Equal(30, transactions[0].Date.Minute);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateLessThan8Chars_SkipsTransaction()
+    {
+        // Arrange - Test the branch where date is less than 8 characters (invalid)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>202401</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert - Should skip invalid date
+        Assert.Empty(transactions);
+    }
+
+    [Fact]
     public async Task GetTransactionsAsync_WithDateAndTime_ParsesCorrectly()
     {
         // Arrange - Test the 14+ character date format with time
@@ -894,7 +1114,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -913,7 +1133,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -932,7 +1152,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -951,7 +1171,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -970,7 +1190,7 @@ DATA:OFXSGML
 <TRNAMT>100.50</TRNAMT>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -990,7 +1210,7 @@ DATA:OFXSGML
 <MEMO>Test value
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act & Assert - Should handle gracefully
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -1007,7 +1227,7 @@ DATA:OFXSGML
 <TRNTYPE></TRNTYPE>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
@@ -1027,7 +1247,7 @@ DATA:OFXSGML
 <TRNTYPE>TRANSFER</TRNTYPE>
 <FITID>FIT001</FITID>
 </STMTTRN>";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();

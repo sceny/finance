@@ -14,12 +14,12 @@ public static class OfxTargetBuilderExtensions
     /// <typeparam name="TTarget">The type of target</typeparam>
     /// <param name="builder">The target builder</param>
     /// <returns>A configured writer for OFX format</returns>
-    public static ConfiguredWriter AsOfx<TTarget>(this TargetBuilder<TTarget> builder) where TTarget : ITarget
+    public static ConfiguredWriter<OfxAccountProperties, OfxTransactionProperties> AsOfx<TTarget>(this TargetBuilder<TTarget> builder) where TTarget : ITarget
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         var writer = new OfxSourceWriter();
-        return new ConfiguredWriter(builder.Target, writer);
+        return new ConfiguredWriter<OfxAccountProperties, OfxTransactionProperties>(builder.Target, writer);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public static class OfxTargetBuilderExtensions
     /// <param name="builder">The target builder</param>
     /// <param name="configure">Action to configure OFX options</param>
     /// <returns>A configured writer for OFX format</returns>
-    public static ConfiguredWriter AsOfx<TTarget>(this TargetBuilder<TTarget> builder, Action<OfxOptions> configure) where TTarget : ITarget
+    public static ConfiguredWriter<OfxAccountProperties, OfxTransactionProperties> AsOfx<TTarget>(this TargetBuilder<TTarget> builder, Action<OfxOptions> configure) where TTarget : ITarget
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(configure);
@@ -37,7 +37,7 @@ public static class OfxTargetBuilderExtensions
         var options = new OfxOptions();
         configure(options);
         var writer = new OfxSourceWriter(options);
-        return new ConfiguredWriter(builder.Target, writer);
+        return new ConfiguredWriter<OfxAccountProperties, OfxTransactionProperties>(builder.Target, writer);
     }
 }
 

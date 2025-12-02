@@ -10,7 +10,7 @@ namespace Sceny.Finance.IO.Benchmarks;
 public class OfxParsingBenchmarks
 {
     private readonly byte[] _ofxData;
-    private readonly Account _testAccount;
+    private readonly Account<OfxAccountProperties> _testAccount;
 
     public OfxParsingBenchmarks()
     {
@@ -43,7 +43,7 @@ public class OfxParsingBenchmarks
 </BANKMSGSRSV1>
 </OFX>";
         _ofxData = Encoding.UTF8.GetBytes(ofx);
-        _testAccount = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        _testAccount = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(OfxAccountProperties));
     }
 
     [Benchmark]

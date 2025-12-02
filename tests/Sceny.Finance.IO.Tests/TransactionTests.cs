@@ -1,4 +1,5 @@
 using Sceny.Finance.IO;
+using Sceny.Finance.IO.Plugin.File.Csv;
 
 namespace Sceny.Finance.IO.Tests;
 
@@ -14,9 +15,10 @@ public class TransactionTests
         var description = "Test Transaction";
         var type = TransactionType.Credit;
         var reference = "REF123";
+        var properties = default(CsvTransactionProperties);
 
         // Act
-        var transaction = Transaction.FromStrings(accountId, amount, date, description, type, reference);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings(accountId, amount, date, description, type, properties, reference);
 
         // Assert
         Assert.Equal(accountId, transaction.AccountId);
@@ -36,9 +38,10 @@ public class TransactionTests
         var date = new DateTime(2024, 2, 20);
         var description = "Debit Transaction";
         var type = TransactionType.Debit;
+        var properties = default(CsvTransactionProperties);
 
         // Act
-        var transaction = new Transaction(accountId, amount, date, description, type);
+        var transaction = new Transaction<CsvTransactionProperties>(accountId, amount, date, description, type, properties);
 
         // Assert
         Assert.Equal("ACC001", transaction.AccountId);
@@ -53,9 +56,10 @@ public class TransactionTests
     {
         // Arrange
         ReadOnlyMemory<char> accountIdMemory = "ACC001".AsMemory();
+        var properties = default(CsvTransactionProperties);
 
         // Act
-        var transaction = new Transaction(accountIdMemory, 100m, DateTime.Now, "Test", TransactionType.Credit);
+        var transaction = new Transaction<CsvTransactionProperties>(accountIdMemory, 100m, DateTime.Now, "Test", TransactionType.Credit, properties);
 
         // Assert - implicit conversion from ReadOnlyMemory<char> to ReadOnlyString
         Assert.Equal("ACC001", transaction.AccountId);
@@ -75,7 +79,7 @@ public class TransactionTests
     public void Transaction_SupportsAllTransactionTypes(TransactionType transactionType)
     {
         // Act
-        var transaction = Transaction.FromStrings("ACC001", 100m, DateTime.Now, "Test", transactionType);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Now, "Test", transactionType, default(CsvTransactionProperties));
 
         // Assert
         Assert.Equal(transactionType, transaction.Type);
@@ -85,7 +89,7 @@ public class TransactionTests
     public void Transaction_FromStrings_WithNullReference_CreatesTransaction()
     {
         // Act
-        var transaction = Transaction.FromStrings("ACC001", 100m, DateTime.Now, "Test", TransactionType.Credit, null);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Now, "Test", TransactionType.Credit, default(CsvTransactionProperties), null);
 
         // Assert
         Assert.Equal(string.Empty, transaction.Reference);

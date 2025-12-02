@@ -10,13 +10,13 @@ namespace Sceny.Finance.IO.Benchmarks;
 public class CsvParsingBenchmarks
 {
     private readonly byte[] _csvData;
-    private readonly Account _testAccount;
+    private readonly Account<CsvAccountProperties> _testAccount;
 
     public CsvParsingBenchmarks()
     {
         var csv = "AccountId,Date,Amount,Description\nACC001,2024-01-15,100.50,Transaction 1\nACC001,2024-01-16,-50.25,Transaction 2\nACC001,2024-01-17,200.00,Transaction 3\n";
         _csvData = Encoding.UTF8.GetBytes(csv);
-        _testAccount = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        _testAccount = Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties));
     }
 
     [Benchmark]

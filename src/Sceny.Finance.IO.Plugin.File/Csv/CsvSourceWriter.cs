@@ -10,7 +10,7 @@ namespace Sceny.Finance.IO.Plugin.File.Csv;
 /// CSV source writer implementation.
 /// Writes CSV files using System.IO.Pipelines for zero-allocation streaming.
 /// </summary>
-public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
+public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter<CsvAccountProperties, CsvTransactionProperties>
 {
     private readonly CsvOptions _options = options ?? new CsvOptions();
     private bool _headerWritten;
@@ -18,7 +18,7 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
 
     public async Task WriteAccountsAsync(
         PipeWriter writer,
-        IAsyncEnumerable<Account> accounts,
+        IAsyncEnumerable<Account<CsvAccountProperties>> accounts,
         CancellationToken cancellationToken = default)
     {
         _isWritingAccounts = true;
@@ -31,9 +31,9 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
     }
 
     public async Task WriteTransactionsAsync(
-        Account account,
+        Account<CsvAccountProperties> account,
         PipeWriter writer,
-        IAsyncEnumerable<Transaction> transactions,
+        IAsyncEnumerable<Transaction<CsvTransactionProperties>> transactions,
         CancellationToken cancellationToken = default)
     {
         _isWritingAccounts = false;
@@ -52,7 +52,7 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
 
     public async Task WriteAccountAsync(
         PipeWriter writer,
-        Account account,
+        Account<CsvAccountProperties> account,
         CancellationToken cancellationToken = default)
     {
         _isWritingAccounts = true;
@@ -69,7 +69,7 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
 
     public async Task WriteTransactionAsync(
         PipeWriter writer,
-        Transaction transaction,
+        Transaction<CsvTransactionProperties> transaction,
         CancellationToken cancellationToken = default)
     {
         _isWritingAccounts = false;
@@ -124,6 +124,10 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
             columns.Add(accountNameColumn);
             columns.Add(accountTypeColumn);
             columns.Add(currencyColumn);
+            
+            // Properties columns
+            columns.Add(GetColumnName("BankName"));
+            columns.Add(GetColumnName("BranchCode"));
         }
         else
         {
@@ -156,9 +160,9 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
         return targetColumn;
     }
 
-    private string FormatAccountLine(Account account)
+    private string FormatAccountLine(Account<CsvAccountProperties> account)
     {
-        var parts = new List<string>(4)
+        var parts = new List<string>
         {
             EscapeCsvField(account.Id.ToString()),
             EscapeCsvField(account.Name.ToString()),
@@ -166,12 +170,30 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
             EscapeCsvField(account.Currency.ToString())
         };
 
+        if (account.Properties is IBankName bankNameProp && !bankNameProp.BankName.IsEmpty)
+        {
+            parts.Add(EscapeCsvField(bankNameProp.BankName.ToString()));
+        }
+
+        if (account.Properties is IBranchCode branchCodeProp && !branchCodeProp.BranchCode.IsEmpty)
+        {
+            parts.Add(EscapeCsvField(branchCodeProp.BranchCode.ToString()));
+        }
+
+        if (account.Properties is IExtended extendedProp && !extendedProp.Extended.IsEmpty)
+        {
+            foreach (var kvp in extendedProp.Extended)
+            {
+                parts.Add(EscapeCsvField(kvp.Value.ToString()));
+            }
+        }
+
         return string.Join(_options.Delimiter, parts);
     }
 
-    private string FormatTransactionLine(Transaction transaction)
+    private string FormatTransactionLine(Transaction<CsvTransactionProperties> transaction)
     {
-        var parts = new List<string>(6)
+        var parts = new List<string>
         {
             EscapeCsvField(transaction.AccountId.ToString()),
             transaction.Date.ToString(_options.DateFormat, CultureInfo.InvariantCulture),
@@ -180,6 +202,14 @@ public sealed class CsvSourceWriter(CsvOptions? options = null) : ISourceWriter
             transaction.Type.ToString(),
             EscapeCsvField(transaction.Reference.ToString())
         };
+
+        if (transaction.Properties is IExtended extendedProp && !extendedProp.Extended.IsEmpty)
+        {
+            foreach (var kvp in extendedProp.Extended)
+            {
+                parts.Add(EscapeCsvField(kvp.Value.ToString()));
+            }
+        }
 
         return string.Join(_options.Delimiter, parts);
     }

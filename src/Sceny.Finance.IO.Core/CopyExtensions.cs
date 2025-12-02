@@ -139,14 +139,18 @@ public static class CopyExtensions
     /// Copies accounts from a ConfiguredReader to a ConfiguredWriter in a zero-allocation way.
     /// This is a one-hit fluent setup for copying accounts between any format.
     /// </summary>
+    /// <typeparam name="TAccountProperties">The account properties type</typeparam>
+    /// <typeparam name="TTransactionProperties">The transaction properties type</typeparam>
     /// <param name="reader">The configured reader to read accounts from</param>
     /// <param name="writer">The configured writer to write accounts to</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the copy operation</returns>
-    public static async Task CopyAccountsToAsync(
-        this ConfiguredReader reader,
-        ConfiguredWriter writer,
+    public static async Task CopyAccountsToAsync<TAccountProperties, TTransactionProperties>(
+        this ConfiguredReader<TAccountProperties, TTransactionProperties> reader,
+        ConfiguredWriter<TAccountProperties, TTransactionProperties> writer,
         CancellationToken cancellationToken = default)
+        where TAccountProperties : struct, IProperties
+        where TTransactionProperties : struct, IProperties
     {
         ArgumentNullException.ThrowIfNull(reader);
         ArgumentNullException.ThrowIfNull(writer);
@@ -159,16 +163,20 @@ public static class CopyExtensions
     /// Copies transactions for a specific account from a ConfiguredReader to a ConfiguredWriter in a zero-allocation way.
     /// This is a one-hit fluent setup for copying transactions between any format.
     /// </summary>
+    /// <typeparam name="TAccountProperties">The account properties type</typeparam>
+    /// <typeparam name="TTransactionProperties">The transaction properties type</typeparam>
     /// <param name="reader">The configured reader to read transactions from</param>
     /// <param name="account">The account to copy transactions for</param>
     /// <param name="writer">The configured writer to write transactions to</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the copy operation</returns>
-    public static async Task CopyTransactionsToAsync(
-        this ConfiguredReader reader,
-        Account account,
-        ConfiguredWriter writer,
+    public static async Task CopyTransactionsToAsync<TAccountProperties, TTransactionProperties>(
+        this ConfiguredReader<TAccountProperties, TTransactionProperties> reader,
+        Account<TAccountProperties> account,
+        ConfiguredWriter<TAccountProperties, TTransactionProperties> writer,
         CancellationToken cancellationToken = default)
+        where TAccountProperties : struct, IProperties
+        where TTransactionProperties : struct, IProperties
     {
         ArgumentNullException.ThrowIfNull(reader);
         ArgumentNullException.ThrowIfNull(writer);
@@ -181,14 +189,18 @@ public static class CopyExtensions
     /// Copies all accounts and their transactions from a ConfiguredReader to a ConfiguredWriter in a zero-allocation way.
     /// This is a one-hit fluent setup for full hierarchical copy between any format.
     /// </summary>
+    /// <typeparam name="TAccountProperties">The account properties type</typeparam>
+    /// <typeparam name="TTransactionProperties">The transaction properties type</typeparam>
     /// <param name="reader">The configured reader to read from</param>
     /// <param name="writer">The configured writer to write to</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the copy operation</returns>
-    public static async Task CopyAllToAsync(
-        this ConfiguredReader reader,
-        ConfiguredWriter writer,
+    public static async Task CopyAllToAsync<TAccountProperties, TTransactionProperties>(
+        this ConfiguredReader<TAccountProperties, TTransactionProperties> reader,
+        ConfiguredWriter<TAccountProperties, TTransactionProperties> writer,
         CancellationToken cancellationToken = default)
+        where TAccountProperties : struct, IProperties
+        where TTransactionProperties : struct, IProperties
     {
         ArgumentNullException.ThrowIfNull(reader);
         ArgumentNullException.ThrowIfNull(writer);

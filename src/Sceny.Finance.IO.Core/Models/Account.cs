@@ -1,9 +1,12 @@
 namespace Sceny.Finance.IO;
 
 /// <summary>
-/// Represents a financial account. Zero-allocation readonly struct using ReadOnlyString for string data.
+/// Represents a financial account with source-specific properties.
+/// Zero-allocation readonly struct using ReadOnlyString for string data.
 /// </summary>
-public readonly struct Account
+/// <typeparam name="TProperties">The source-specific properties type</typeparam>
+public readonly struct Account<TProperties>
+    where TProperties : struct, IProperties
 {
     /// <summary>Unique account identifier</summary>
     public ReadOnlyString Id { get; }
@@ -17,21 +20,35 @@ public readonly struct Account
     /// <summary>ISO currency code (e.g., "USD", "EUR")</summary>
     public ReadOnlyString Currency { get; }
 
-    public Account(ReadOnlyString id, ReadOnlyString name, AccountType type, ReadOnlyString currency)
+    /// <summary>Source-specific structured properties</summary>
+    public TProperties Properties { get; }
+
+    public Account(
+        ReadOnlyString id,
+        ReadOnlyString name,
+        AccountType type,
+        ReadOnlyString currency,
+        TProperties properties)
     {
         Id = id;
         Name = name;
         Type = type;
         Currency = currency;
+        Properties = properties;
     }
 
     /// <summary>
     /// Creates an Account from string values.
     /// Uses implicit conversion from string to ReadOnlyString.
     /// </summary>
-    public static Account FromStrings(string id, string name, AccountType type, string currency)
+    public static Account<TProperties> FromStrings(
+        string id,
+        string name,
+        AccountType type,
+        string currency,
+        TProperties properties)
     {
-        return new Account(id, name, type, currency);
+        return new Account<TProperties>(id, name, type, currency, properties);
     }
 }
 

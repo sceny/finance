@@ -7,10 +7,16 @@ namespace Sceny.Finance.IO;
 /// Wraps a target and writer together to provide a configured writer for financial data.
 /// This class combines the ITarget (data destination) with ISourceWriter (format serializer).
 /// </summary>
-public sealed class ConfiguredWriter(ITarget target, ISourceWriter writer)
+/// <typeparam name="TAccountProperties">The account properties type</typeparam>
+/// <typeparam name="TTransactionProperties">The transaction properties type</typeparam>
+public sealed class ConfiguredWriter<TAccountProperties, TTransactionProperties>(
+    ITarget target,
+    ISourceWriter<TAccountProperties, TTransactionProperties> writer)
+    where TAccountProperties : struct, IProperties
+    where TTransactionProperties : struct, IProperties
 {
     private readonly ITarget _target = target ?? throw new ArgumentNullException(nameof(target));
-    private readonly ISourceWriter _writer = writer ?? throw new ArgumentNullException(nameof(writer));
+    private readonly ISourceWriter<TAccountProperties, TTransactionProperties> _writer = writer ?? throw new ArgumentNullException(nameof(writer));
     private PipeWriter? _pipeWriter;
     private bool _isInitialized;
 
@@ -21,7 +27,7 @@ public sealed class ConfiguredWriter(ITarget target, ISourceWriter writer)
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the write operation</returns>
     public async Task WriteAccountsAsync(
-        IAsyncEnumerable<Account> accounts,
+        IAsyncEnumerable<Account<TAccountProperties>> accounts,
         CancellationToken cancellationToken = default)
     {
         if (_isInitialized)
@@ -48,8 +54,8 @@ public sealed class ConfiguredWriter(ITarget target, ISourceWriter writer)
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the write operation</returns>
     public async Task WriteTransactionsAsync(
-        Account account,
-        IAsyncEnumerable<Transaction> transactions,
+        Account<TAccountProperties> account,
+        IAsyncEnumerable<Transaction<TTransactionProperties>> transactions,
         CancellationToken cancellationToken = default)
     {
         if (_isInitialized)
@@ -90,7 +96,7 @@ public sealed class ConfiguredWriter(ITarget target, ISourceWriter writer)
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the write operation</returns>
     public async Task WriteAccountAsync(
-        Account account,
+        Account<TAccountProperties> account,
         CancellationToken cancellationToken = default)
     {
         if (!_isInitialized || _pipeWriter == null)
@@ -107,7 +113,7 @@ public sealed class ConfiguredWriter(ITarget target, ISourceWriter writer)
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the write operation</returns>
     public async Task WriteTransactionAsync(
-        Transaction transaction,
+        Transaction<TTransactionProperties> transaction,
         CancellationToken cancellationToken = default)
     {
         if (!_isInitialized || _pipeWriter == null)

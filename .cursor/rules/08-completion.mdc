@@ -1,9 +1,17 @@
 ---
-description: Task completion criteria and verification requirements for Sceny.Finance.IO
-alwaysApply: true
+description: It should be applied any time and AI work is completed to indicate completion criteria and verification requirements
+alwaysApply: false
 ---
-
 # Task Completion Criteria
+
+## Primary Goal: Library Feature Quality and Regression Prevention
+
+**The primary objective of testing is to ensure that:**
+1. **Implemented features work correctly** - All functionality behaves as intended
+2. **No regressions occur** - Existing functionality continues to work after changes
+3. **Library quality is maintained** - The library remains reliable and trustworthy
+
+**Test quality is the major concern.** Well-designed tests that verify correct behavior and catch regressions are more valuable than achieving coverage metrics alone. However, coverage metrics serve as a **mandatory quantitative measure** to help ensure comprehensive testing.
 
 ## Required Commands and Checks
 
@@ -16,54 +24,139 @@ dotnet build
 - **Requirement**: Build must succeed with no errors or warnings
 - **Action if failed**: Fix all compilation errors and warnings before proceeding
 
-### 2. Test Execution and Coverage
+### 2. Test Execution and Quality Verification
+
+#### Run Tests
 ```bash
 dotnet test
 ```
 - **Requirement**: All tests must pass (100% pass rate)
+- **Purpose**: Verify that implemented features work correctly and no regressions were introduced
+- **Action if failed**: Fix failing tests before proceeding. Analyze failures to understand if they indicate:
+  - Implementation bugs that need fixing
+  - Test issues that need correction
+  - Regressions that must be prevented
+
+#### Test Quality Requirements
+
+Tests must demonstrate:
+- **Correctness**: Features behave as specified and intended
+- **Regression Prevention**: Existing functionality continues to work
+- **Edge Case Handling**: Boundary conditions, empty inputs, null inputs are handled correctly
+- **Error Handling**: Error paths behave appropriately
+- **Integration**: Components work together correctly
+
+**Focus on writing meaningful tests** that verify behavior, not just achieving coverage numbers. A test that verifies correct behavior is more valuable than a test that only increases coverage.
+
+#### Collect Coverage Data
+```bash
+dotnet test --collect:"XPlat Code Coverage"
+```
+- **Coverage Report Location**: `tests/Sceny.Finance.IO.Tests/TestResults/{guid}/coverage.cobertura.xml`
 - **Line Coverage**: Minimum 90% line coverage required
 - **Branch Coverage**: Minimum 90% branch coverage required
-- **Action if failed**: 
-  - Fix failing tests
-  - Add missing test cases to achieve coverage requirements
-  - Verify all conditional branches are tested
+
+**Coverage as a Quality Metric:**
+- Coverage percentages are **mandatory metrics** that help ensure comprehensive testing
+- They serve as a quantitative check to identify untested code paths
+- However, **test quality is more important than coverage percentage alone**
+- High coverage with poor test quality does not ensure feature correctness or prevent regressions
+
+#### Check Coverage Metrics
+```bash
+# Extract coverage metrics from the XML report
+grep "^<coverage" tests/Sceny.Finance.IO.Tests/TestResults/*/coverage.cobertura.xml
+```
+- Look for `line-rate` and `branch-rate` attributes
+- Example: `<coverage line-rate="0.9443" branch-rate="0.8845" ...>`
+- Convert to percentage: `line-rate="0.9443"` = 94.43% line coverage
+
+#### Action if Coverage Below 90%:
+- **First**: Ensure test quality - verify that existing tests properly validate behavior
+- **Then**: Analyze coverage report to identify uncovered lines/branches
+- **Add meaningful test cases** that verify correct behavior for uncovered code:
+  - Error handling paths - verify errors are handled correctly
+  - Edge cases (empty inputs, null inputs, boundary conditions) - verify behavior at boundaries
+  - All conditional branches (if/else, switch, ternary operators) - verify each branch produces correct results
+  - All loop variations (early exit, continue, break conditions) - verify loop behavior is correct
+- **Focus on behavior verification**, not just coverage achievement
+- Re-run coverage collection after adding tests
+- Verify all conditional branches produce correct results
 
 ### 3. Benchmark Verification
+
+#### Run All Benchmarks
 ```bash
-dotnet run --project tests/Sceny.Finance.IO.Benchmarks
+dotnet run --project tests/Sceny.Finance.IO.Benchmarks --configuration Release
 ```
 - **Requirement**: All benchmarks must show **zero allocations** (0 B allocated)
+- **Purpose**: Verify performance characteristics and ensure zero-allocation requirements are met
 - **Verification**: Check `MemoryDiagnoser` output for allocation metrics
-- **Action if failed**: 
+- Look for `Allocated` column in benchmark results - should show `0 B` for all generic property operations
+
+#### Run Specific Benchmark Class
+```bash
+dotnet run --project tests/Sceny.Finance.IO.Benchmarks --configuration Release -- --filter "*GenericPropertiesBenchmarks*"
+```
+- Use `--filter` to run specific benchmark classes
+- Use `--job short` for faster execution during development
+
+#### Verify Zero Allocations
+- Check benchmark output for `GC: 0 0 0 0` entries
+- Check `Allocated` column in results table - should be `0 B` for zero-allocation operations
+- **Action if allocations detected**: 
   - Identify and fix allocation sources
   - Use `ArrayPool<T>` for necessary allocations
   - Verify use of `ReadOnlySpan<T>` and `ReadOnlyMemory<T>` in hot paths
   - Ensure `System.IO.Pipelines` is used correctly
+  - Review code for string allocations, boxing, or unnecessary object creation
 
 ## Completion Checklist
 
 Before marking a task as complete:
 - [ ] `dotnet build` succeeds without errors or warnings
 - [ ] `dotnet test` passes with 100% test pass rate
-- [ ] Test coverage meets 90% line coverage minimum
-- [ ] Test coverage meets 90% branch coverage minimum
+- [ ] **Test Quality**: Tests verify that implemented features work correctly
+- [ ] **Regression Prevention**: All existing tests pass; no unexpected regressions introduced
+- [ ] Test coverage meets 90% line coverage minimum (mandatory metric)
+- [ ] Test coverage meets 90% branch coverage minimum (mandatory metric)
 - [ ] All benchmarks run without allocations (0 B allocated)
 - [ ] All diagnostic code (`[#ai_diagnostic]`) has been removed
 - [ ] Code follows project standards and patterns
 - [ ] **Task Objective Verification**: The original task goal/objective has been successfully completed and verified
-- [ ] **No Regressions**: All existing tests pass; no unexpected regressions introduced
 
 ## Notes
 
+### Test Quality vs. Coverage Metrics
+
+- **Test quality is the primary concern**: Well-designed tests that verify behavior and prevent regressions are essential
+- **Coverage metrics are mandatory but secondary**: They serve as quantitative measures to help ensure comprehensive testing
+- **Focus on behavior verification**: When adding tests to improve coverage, ensure they verify correct behavior, not just increase numbers
+- **Meaningful tests**: A test that verifies correct behavior is more valuable than a test that only increases coverage
+
+### Coverage and Zero-Allocation Requirements
+
 - Coverage and zero-allocation requirements are **mandatory global project standards** that must be achieved
 - **Do whatever is needed** to achieve these metrics (add tests, refactor code, etc.)
+- However, **prioritize test quality** - ensure tests verify behavior and prevent regressions
 - **Critical**: While working to achieve coverage and allocation requirements, ensure that the **original task objective/goal is still met and completed**
 - Do not lose sight of the task goal while addressing metrics requirements
+
+### Regression Prevention
+
 - **Preserve Existing Code**: Do not remove working/tested pre-existing code that is unrelated to the task
 - **Avoid Regressions**: Move forward with new changes without introducing unexpected regressions
 - **Regression Detection**: If any test failure or regression unrelated to the task is detected, **DO NOT proceed with changes that cause it** - revert behavior or ask for guidance if not possible
+- **All existing tests must pass**: This is a critical requirement for regression prevention
+
+### Practical Guidelines
+
 - Coverage reports can be generated using coverage tools if needed
 - Benchmark allocations should be verified using `[MemoryDiagnoser]` attribute
-- If coverage is below 90%, add missing test cases before completing the task
+- If coverage is below 90%, add meaningful test cases that verify behavior before completing the task
 - If benchmarks show allocations, refactor code to eliminate them before completing the task
-- **Final Check**: Before marking complete, verify that both the metrics requirements AND the task objective have been achieved
+- **Final Check**: Before marking complete, verify that:
+  1. **Feature quality**: Implemented features work correctly
+  2. **No regressions**: All existing tests pass
+  3. **Metrics requirements**: Coverage and allocation requirements are met
+  4. **Task objective**: The original task goal has been achieved

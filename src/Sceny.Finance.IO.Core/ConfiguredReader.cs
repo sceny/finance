@@ -7,17 +7,23 @@ namespace Sceny.Finance.IO;
 /// Wraps a source and reader together to provide a configured reader for financial data.
 /// This class combines the ISource (data source) with ISourceReader (format parser).
 /// </summary>
-public sealed class ConfiguredReader(ISource source, ISourceReader reader)
+/// <typeparam name="TAccountProperties">The account properties type</typeparam>
+/// <typeparam name="TTransactionProperties">The transaction properties type</typeparam>
+public sealed class ConfiguredReader<TAccountProperties, TTransactionProperties>(
+    ISource source,
+    ISourceReader<TAccountProperties, TTransactionProperties> reader)
+    where TAccountProperties : struct, IProperties
+    where TTransactionProperties : struct, IProperties
 {
     private readonly ISource _source = source ?? throw new ArgumentNullException(nameof(source));
-    private readonly ISourceReader _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+    private readonly ISourceReader<TAccountProperties, TTransactionProperties> _reader = reader ?? throw new ArgumentNullException(nameof(reader));
 
     /// <summary>
     /// Streams accounts as they are discovered from the source.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Async enumerable of discovered accounts</returns>
-    public async IAsyncEnumerable<Account> GetAccountsAsync([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<Account<TAccountProperties>> GetAccountsAsync([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         PipeReader pipeReader;
 
@@ -47,8 +53,8 @@ public sealed class ConfiguredReader(ISource source, ISourceReader reader)
     /// <param name="account">The account to get transactions for</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Async enumerable of transactions for the account</returns>
-    public async IAsyncEnumerable<Transaction> GetTransactionsAsync(
-        Account account,
+    public async IAsyncEnumerable<Transaction<TTransactionProperties>> GetTransactionsAsync(
+        Account<TAccountProperties> account,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         PipeReader pipeReader;

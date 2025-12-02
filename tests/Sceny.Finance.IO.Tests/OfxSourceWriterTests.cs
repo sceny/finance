@@ -15,7 +15,7 @@ public class OfxSourceWriterTests
         var target = FinanceWriter.ToString(sb).AsOfx();
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Checking Account", AccountType.Checking, "USD")
+            Account<OfxAccountProperties>.FromStrings("ACC001", "Checking Account", AccountType.Checking, "USD", default(OfxAccountProperties))
         };
 
         // Act
@@ -40,11 +40,11 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(OfxAccountProperties));
         var transactions = new[]
         {
-            Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test Transaction", TransactionType.Credit),
-            Transaction.FromStrings("ACC001", -50.25m, DateTime.Parse("2024-01-16 14:00:00"), "Debit Transaction", TransactionType.Debit)
+            Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test Transaction", TransactionType.Credit, default(OfxTransactionProperties)),
+            Transaction<OfxTransactionProperties>.FromStrings("ACC001", -50.25m, DateTime.Parse("2024-01-16 14:00:00"), "Debit Transaction", TransactionType.Debit, default(OfxTransactionProperties))
         };
 
         // Act
@@ -67,7 +67,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -88,7 +88,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -109,7 +109,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Description <with> & XML", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Description <with> & XML", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -130,8 +130,8 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account1 = Account.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD");
-        var account2 = Account.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR");
+        var account1 = Account<OfxAccountProperties>.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD", default(OfxAccountProperties));
+        var account2 = Account<OfxAccountProperties>.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -152,15 +152,15 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account1 = Account.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD");
-        var account2 = Account.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR");
+        var account1 = Account<OfxAccountProperties>.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD", default(OfxAccountProperties));
+        var account2 = Account<OfxAccountProperties>.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR", default(OfxAccountProperties));
         var transactions1 = new[]
         {
-            Transaction.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit)
+            Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit, default(OfxTransactionProperties))
         };
         var transactions2 = new[]
         {
-            Transaction.FromStrings("ACC002", 200m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit)
+            Transaction<OfxTransactionProperties>.FromStrings("ACC002", 200m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit, default(OfxTransactionProperties))
         };
 
         // Act
@@ -182,7 +182,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, "REF123");
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(OfxTransactionProperties), "REF123");
 
         // Act
         await target.BeginWriteAsync();
@@ -201,7 +201,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -221,8 +221,8 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var credit = Transaction.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Credit", TransactionType.Credit);
-        var debit = Transaction.FromStrings("ACC001", -50m, DateTime.Parse("2024-01-16"), "Debit", TransactionType.Debit);
+        var credit = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Credit", TransactionType.Credit, default(OfxTransactionProperties));
+        var debit = Transaction<OfxTransactionProperties>.FromStrings("ACC001", -50m, DateTime.Parse("2024-01-16"), "Debit", TransactionType.Debit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -263,7 +263,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -283,8 +283,8 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var checking = Account.FromStrings("ACC001", "Checking", AccountType.Checking, "USD");
-        var savings = Account.FromStrings("ACC002", "Savings", AccountType.Savings, "EUR");
+        var checking = Account<OfxAccountProperties>.FromStrings("ACC001", "Checking", AccountType.Checking, "USD", default(OfxAccountProperties));
+        var savings = Account<OfxAccountProperties>.FromStrings("ACC002", "Savings", AccountType.Savings, "EUR", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -308,10 +308,10 @@ public class OfxSourceWriterTests
 
         // Act
         await target.BeginWriteAsync();
-        await target.WriteAccountAsync(Account.FromStrings("ACC001", "Checking", AccountType.Checking, "USD"));
-        await target.WriteAccountAsync(Account.FromStrings("ACC002", "Savings", AccountType.Savings, "USD"));
-        await target.WriteAccountAsync(Account.FromStrings("ACC003", "CreditCard", AccountType.CreditCard, "USD"));
-        await target.WriteAccountAsync(Account.FromStrings("ACC004", "Other", AccountType.Other, "USD"));
+        await target.WriteAccountAsync(Account<OfxAccountProperties>.FromStrings("ACC001", "Checking", AccountType.Checking, "USD", default(OfxAccountProperties)));
+        await target.WriteAccountAsync(Account<OfxAccountProperties>.FromStrings("ACC002", "Savings", AccountType.Savings, "USD", default(OfxAccountProperties)));
+        await target.WriteAccountAsync(Account<OfxAccountProperties>.FromStrings("ACC003", "CreditCard", AccountType.CreditCard, "USD", default(OfxAccountProperties)));
+        await target.WriteAccountAsync(Account<OfxAccountProperties>.FromStrings("ACC004", "Other", AccountType.Other, "USD", default(OfxAccountProperties)));
         await target.EndWriteAsync();
         await TestHelpers.WaitForAsyncWrites();
 
@@ -333,16 +333,16 @@ public class OfxSourceWriterTests
 
         // Act
         await target.BeginWriteAsync();
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 100m, date, "Credit", TransactionType.Credit));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", -50m, date, "Debit", TransactionType.Debit));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 25m, date, "Transfer", TransactionType.Transfer));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 1000m, date, "Buy", TransactionType.Buy));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", -800m, date, "Sell", TransactionType.Sell));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 50m, date, "Dividend", TransactionType.Dividend));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", -5m, date, "Fee", TransactionType.Fee));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 10m, date, "Interest", TransactionType.Interest));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 15m, date, "Adjustment", TransactionType.Adjustment));
-        await target.WriteTransactionAsync(Transaction.FromStrings("ACC001", 20m, date, "Other", TransactionType.Other));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100m, date, "Credit", TransactionType.Credit, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", -50m, date, "Debit", TransactionType.Debit, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 25m, date, "Transfer", TransactionType.Transfer, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 1000m, date, "Buy", TransactionType.Buy, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", -800m, date, "Sell", TransactionType.Sell, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 50m, date, "Dividend", TransactionType.Dividend, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", -5m, date, "Fee", TransactionType.Fee, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 10m, date, "Interest", TransactionType.Interest, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 15m, date, "Adjustment", TransactionType.Adjustment, default(OfxTransactionProperties)));
+        await target.WriteTransactionAsync(Transaction<OfxTransactionProperties>.FromStrings("ACC001", 20m, date, "Other", TransactionType.Other, default(OfxTransactionProperties)));
         await target.EndWriteAsync();
         await TestHelpers.WaitForAsyncWrites();
 
@@ -368,7 +368,7 @@ public class OfxSourceWriterTests
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
         // Using Brokerage which is not explicitly handled (will use default case)
-        var brokerage = Account.FromStrings("ACC001", "Brokerage", AccountType.Brokerage, "USD");
+        var brokerage = Account<OfxAccountProperties>.FromStrings("ACC001", "Brokerage", AccountType.Brokerage, "USD", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -388,7 +388,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -407,7 +407,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -428,7 +428,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", -100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Debit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", -100.50m, DateTime.Parse("2024-01-15 10:30:00"), "Test", TransactionType.Debit, default(OfxTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -450,7 +450,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var investment = Account.FromStrings("ACC001", "Investment", AccountType.Investment, "USD");
+        var investment = Account<OfxAccountProperties>.FromStrings("ACC001", "Investment", AccountType.Investment, "USD", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -469,7 +469,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var loan = Account.FromStrings("ACC001", "Loan", AccountType.Loan, "USD");
+        var loan = Account<OfxAccountProperties>.FromStrings("ACC001", "Loan", AccountType.Loan, "USD", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -488,7 +488,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var mortgage = Account.FromStrings("ACC001", "Mortgage", AccountType.Mortgage, "USD");
+        var mortgage = Account<OfxAccountProperties>.FromStrings("ACC001", "Mortgage", AccountType.Mortgage, "USD", default(OfxAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -507,7 +507,7 @@ public class OfxSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "", TransactionType.Credit, "REF123");
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "", TransactionType.Credit, default(OfxTransactionProperties), "REF123");
 
         // Act
         await target.BeginWriteAsync();
@@ -522,6 +522,136 @@ public class OfxSourceWriterTests
     }
 
     [Fact]
+    public async Task WriteTransactionAsync_WithExtendedProperties_WritesExtendedTags()
+    {
+        // Arrange - Test the branch where transaction has Extended properties
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsOfx();
+        var extendedPairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[]
+        {
+            new("CustomField1", "Value1"),
+            new("CustomField2", "Value2")
+        };
+        var extended = new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(extendedPairs));
+        var txProps = new OfxTransactionProperties(extended: extended);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, txProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteTransactionAsync(transaction);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert - Extended properties should be written as tags
+        var result = sb.ToString();
+        Assert.Contains("<CustomField1>Value1</CustomField1>", result);
+        Assert.Contains("<CustomField2>Value2</CustomField2>", result);
+    }
+
+    [Fact]
+    public async Task WriteTransactionAsync_WithAllBranches_EmptyDescriptionEmptyReferenceExtended()
+    {
+        // Arrange - Test all branches: empty description, empty reference (generates FITID), with Extended
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsOfx();
+        var extendedPairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[]
+        {
+            new("CustomField", "Value")
+        };
+        var extended = new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(extendedPairs));
+        var txProps = new OfxTransactionProperties(extended: extended);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "", TransactionType.Credit, txProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteTransactionAsync(transaction);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert
+        var result = sb.ToString();
+        Assert.DoesNotContain("<MEMO>", result); // Empty description
+        Assert.Contains("<FITID>", result); // Generated FITID (not provided)
+        Assert.Contains("<CustomField>Value</CustomField>", result); // Extended properties
+    }
+
+    [Fact]
+    public async Task WriteAccountBlockAsync_WithBankId_WritesBankId()
+    {
+        // Arrange - Test the branch where account has IBankId
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsOfx();
+        var ofxProps = new OfxAccountProperties(
+            bankId: "BANK001",
+            extended: default
+        );
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", ofxProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteAccountAsync(account);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert
+        var result = sb.ToString();
+        Assert.Contains("<BANKID>BANK001</BANKID>", result);
+    }
+
+    [Fact]
+    public async Task WriteAccountBlockAsync_WithoutBankId_HandlesEmptyBankId()
+    {
+        // Arrange - Test the branch where account doesn't have IBankId or BankId is empty
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsOfx();
+        var ofxProps = new OfxAccountProperties(
+            bankId: default,
+            extended: default
+        );
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", ofxProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteAccountAsync(account);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert - BankId should be written as empty string
+        var result = sb.ToString();
+        Assert.Contains("<BANKID></BANKID>", result);
+    }
+
+    [Fact]
+    public async Task WriteAccountBlockAsync_WithExtendedProperties_WritesExtendedTags()
+    {
+        // Arrange - Test the branch where account has Extended properties
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsOfx();
+        var extendedPairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[]
+        {
+            new("CustomField1", "Value1"),
+            new("CustomField2", "Value2")
+        };
+        var extended = new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(extendedPairs));
+        var ofxProps = new OfxAccountProperties(
+            bankId: "BANK001",
+            extended: extended
+        );
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", ofxProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteAccountAsync(account);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert - Extended properties should be written as tags
+        var result = sb.ToString();
+        Assert.Contains("<CustomField1>Value1</CustomField1>", result);
+        Assert.Contains("<CustomField2>Value2</CustomField2>", result);
+    }
+
+    [Fact]
     public async Task WriteHeaderAsync_WhenAlreadyWritten_SkipsWriting()
     {
         // Arrange
@@ -531,7 +661,7 @@ public class OfxSourceWriterTests
         // Act
         await target.BeginWriteAsync();
         // Call WriteHeaderAsync again (should be skipped)
-        await target.WriteAccountAsync(Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD"));
+        await target.WriteAccountAsync(Account<OfxAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(OfxAccountProperties)));
         await target.EndWriteAsync();
         await TestHelpers.WaitForAsyncWrites();
 
@@ -547,10 +677,10 @@ public class OfxSourceWriterTests
         // Arrange - Test the branch where _currentAccount.HasValue && _inTransactionList
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account1 = Account.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD");
-        var account2 = Account.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR");
-        var transactions1 = new[] { Transaction.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit) };
-        var transactions2 = new[] { Transaction.FromStrings("ACC002", 200m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit) };
+        var account1 = Account<OfxAccountProperties>.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD", default(OfxAccountProperties));
+        var account2 = Account<OfxAccountProperties>.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR", default(OfxAccountProperties));
+        var transactions1 = new[] { Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit, default(OfxTransactionProperties)) };
+        var transactions2 = new[] { Transaction<OfxTransactionProperties>.FromStrings("ACC002", 200m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit, default(OfxTransactionProperties)) };
 
         // Act - WriteTransactionsAsync handles its own lifecycle (no EndWriteAsync needed)
         await target.WriteTransactionsAsync(account1, transactions1.ToAsyncEnumerable());
@@ -570,7 +700,7 @@ public class OfxSourceWriterTests
         // Arrange - Test the branch where !_currentAccount.HasValue in WriteTransactionAsync
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit);
+        var transaction = Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(OfxTransactionProperties));
 
         // Act - Write transaction without setting account first
         await target.BeginWriteAsync();
@@ -590,9 +720,9 @@ public class OfxSourceWriterTests
         // Arrange - Test the branch where account IDs match (should NOT close and reopen)
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsOfx();
-        var account = Account.FromStrings("ACC001", "Account", AccountType.Checking, "USD");
-        var transactions1 = new[] { Transaction.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit) };
-        var transactions2 = new[] { Transaction.FromStrings("ACC001", 200m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit) };
+        var account = Account<OfxAccountProperties>.FromStrings("ACC001", "Account", AccountType.Checking, "USD", default(OfxAccountProperties));
+        var transactions1 = new[] { Transaction<OfxTransactionProperties>.FromStrings("ACC001", 100m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit, default(OfxTransactionProperties)) };
+        var transactions2 = new[] { Transaction<OfxTransactionProperties>.FromStrings("ACC001", 200m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit, default(OfxTransactionProperties)) };
 
         // Act - WriteTransactionsAsync handles its own lifecycle
         await target.WriteTransactionsAsync(account, transactions1.ToAsyncEnumerable());

@@ -14,12 +14,12 @@ public static class OfxSourceBuilderExtensions
     /// <typeparam name="TSource">The type of source</typeparam>
     /// <param name="builder">The source builder</param>
     /// <returns>A configured reader for OFX format</returns>
-    public static ConfiguredReader AsOfx<TSource>(this SourceBuilder<TSource> builder) where TSource : ISource
+    public static ConfiguredReader<OfxAccountProperties, OfxTransactionProperties> AsOfx<TSource>(this SourceBuilder<TSource> builder) where TSource : ISource
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         var reader = new OfxSourceReader();
-        return new ConfiguredReader(builder.Source, reader);
+        return new ConfiguredReader<OfxAccountProperties, OfxTransactionProperties>(builder.Source, reader);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public static class OfxSourceBuilderExtensions
     /// <param name="builder">The source builder</param>
     /// <param name="configure">Action to configure OFX options</param>
     /// <returns>A configured reader for OFX format</returns>
-    public static ConfiguredReader AsOfx<TSource>(this SourceBuilder<TSource> builder, Action<OfxOptions> configure) where TSource : ISource
+    public static ConfiguredReader<OfxAccountProperties, OfxTransactionProperties> AsOfx<TSource>(this SourceBuilder<TSource> builder, Action<OfxOptions> configure) where TSource : ISource
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(configure);
@@ -37,7 +37,7 @@ public static class OfxSourceBuilderExtensions
         var options = new OfxOptions();
         configure(options);
         var reader = new OfxSourceReader(options);
-        return new ConfiguredReader(builder.Source, reader);
+        return new ConfiguredReader<OfxAccountProperties, OfxTransactionProperties>(builder.Source, reader);
     }
 }
 

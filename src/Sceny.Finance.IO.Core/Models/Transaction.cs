@@ -1,9 +1,12 @@
 namespace Sceny.Finance.IO;
 
 /// <summary>
-/// Represents a financial transaction. Zero-allocation readonly struct using ReadOnlyString for string data.
+/// Represents a financial transaction with source-specific properties.
+/// Zero-allocation readonly struct using ReadOnlyString for string data.
 /// </summary>
-public readonly struct Transaction
+/// <typeparam name="TProperties">The source-specific properties type</typeparam>
+public readonly struct Transaction<TProperties>
+    where TProperties : struct, IProperties
 {
     /// <summary>Reference to the source account ID</summary>
     public ReadOnlyString AccountId { get; }
@@ -23,12 +26,16 @@ public readonly struct Transaction
     /// <summary>Optional transaction reference/check number</summary>
     public ReadOnlyString Reference { get; }
 
+    /// <summary>Source-specific structured properties</summary>
+    public TProperties Properties { get; }
+
     public Transaction(
         ReadOnlyString accountId,
         decimal amount,
         DateTime date,
         ReadOnlyString description,
         TransactionType type,
+        TProperties properties,
         ReadOnlyString reference = default)
     {
         AccountId = accountId;
@@ -37,26 +44,29 @@ public readonly struct Transaction
         Description = description;
         Type = type;
         Reference = reference;
+        Properties = properties;
     }
 
     /// <summary>
     /// Creates a Transaction from string values.
     /// Uses implicit conversion from string to ReadOnlyString.
     /// </summary>
-    public static Transaction FromStrings(
+    public static Transaction<TProperties> FromStrings(
         string accountId,
         decimal amount,
         DateTime date,
         string description,
         TransactionType type,
+        TProperties properties,
         string? reference = null)
     {
-        return new Transaction(
+        return new Transaction<TProperties>(
             accountId,
             amount,
             date,
             description,
             type,
+            properties,
             reference ?? string.Empty
         );
     }

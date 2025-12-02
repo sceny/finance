@@ -19,7 +19,7 @@ public class ConfiguredWriterTests
         var writer = new CsvSourceWriter();
 
         // Act
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Assert
         Assert.NotNull(configuredWriter);
@@ -32,7 +32,7 @@ public class ConfiguredWriterTests
         var writer = new CsvSourceWriter();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ConfiguredWriter(null!, writer));
+        Assert.Throws<ArgumentNullException>(() => new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(null!, writer));
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class ConfiguredWriterTests
         var target = new StringTarget(sb);
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ConfiguredWriter(target, null!));
+        Assert.Throws<ArgumentNullException>(() => new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, null!));
     }
 
     [Fact]
@@ -53,10 +53,10 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -77,11 +77,11 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var transactions = new[]
         {
-            Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit)
+            Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -103,8 +103,8 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await configuredWriter.BeginWriteAsync();
@@ -125,8 +125,8 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act
         await configuredWriter.BeginWriteAsync();
@@ -148,8 +148,8 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
@@ -165,8 +165,8 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
@@ -182,7 +182,7 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
@@ -198,7 +198,7 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Act
         await configuredWriter.BeginWriteAsync();
@@ -220,10 +220,10 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -246,11 +246,11 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var transactions = new[]
         {
-            Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit)
+            Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -273,10 +273,10 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
         var cts = new CancellationTokenSource();
         cts.Cancel();
@@ -295,11 +295,11 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var transactions = new[]
         {
-            Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit)
+            Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties))
         }.ToAsyncEnumerable();
         var cts = new CancellationTokenSource();
         cts.Cancel();
@@ -320,10 +320,10 @@ public class ConfiguredWriterTests
         {
             var target = new FileTarget(tempFile);
             var writer = new CsvSourceWriter();
-            var configuredWriter = new ConfiguredWriter(target, writer);
+            var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
             var accounts = new[]
             {
-                Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD")
+                Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties))
             }.ToAsyncEnumerable();
 
             // Act
@@ -348,10 +348,10 @@ public class ConfiguredWriterTests
         var stream = new MemoryStream();
         var target = new StreamTarget(stream);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -373,10 +373,10 @@ public class ConfiguredWriterTests
         var bufferWriter = new ArrayBufferWriter<byte>();
         var target = new MemoryTarget(bufferWriter);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -396,11 +396,11 @@ public class ConfiguredWriterTests
         {
             var target = new FileTarget(tempFile);
             var writer = new CsvSourceWriter();
-            var configuredWriter = new ConfiguredWriter(target, writer);
-            var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+            var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+            var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
             var transactions = new[]
             {
-                Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit)
+                Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties))
             }.ToAsyncEnumerable();
 
             // Act
@@ -427,7 +427,7 @@ public class ConfiguredWriterTests
         {
             var target = new FileTarget(tempFile);
             var writer = new CsvSourceWriter();
-            var configuredWriter = new ConfiguredWriter(target, writer);
+            var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
             // Act
             await configuredWriter.BeginWriteAsync();
@@ -449,7 +449,7 @@ public class ConfiguredWriterTests
         var stream = new MemoryStream();
         var target = new StreamTarget(stream);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Act
         await configuredWriter.BeginWriteAsync();
@@ -466,7 +466,7 @@ public class ConfiguredWriterTests
         var bufferWriter = new ArrayBufferWriter<byte>();
         var target = new MemoryTarget(bufferWriter);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Act
         await configuredWriter.BeginWriteAsync();
@@ -483,10 +483,10 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -508,11 +508,11 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var transactions = new[]
         {
-            Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit)
+            Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties))
         }.ToAsyncEnumerable();
 
         // Act
@@ -534,14 +534,14 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Act
         await configuredWriter.BeginWriteAsync();
         // Call WriteAccountAsync multiple times - this should use the existing _pipeWriter
         // This tests the branch: if (_isInitialized && _pipeWriter != null) return _pipeWriter;
-        var account1 = Account.FromStrings("ACC001", "Test1", AccountType.Checking, "USD");
-        var account2 = Account.FromStrings("ACC002", "Test2", AccountType.Savings, "USD");
+        var account1 = Account<CsvAccountProperties>.FromStrings("ACC001", "Test1", AccountType.Checking, "USD", default(CsvAccountProperties));
+        var account2 = Account<CsvAccountProperties>.FromStrings("ACC002", "Test2", AccountType.Savings, "USD", default(CsvAccountProperties));
         await configuredWriter.WriteAccountAsync(account1);
         await configuredWriter.WriteAccountAsync(account2);
         
@@ -561,14 +561,14 @@ public class ConfiguredWriterTests
         var sb = new StringBuilder();
         var target = new StringTarget(sb);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await configuredWriter.BeginWriteAsync();
         // Call WriteTransactionAsync multiple times - this should use the existing _pipeWriter
-        var tx1 = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit);
-        var tx2 = Transaction.FromStrings("ACC001", 50.25m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit);
+        var tx1 = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Tx1", TransactionType.Credit, default(CsvTransactionProperties));
+        var tx2 = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 50.25m, DateTime.Parse("2024-01-16"), "Tx2", TransactionType.Debit, default(CsvTransactionProperties));
         await configuredWriter.WriteTransactionAsync(tx1);
         await configuredWriter.WriteTransactionAsync(tx2);
         
@@ -588,18 +588,71 @@ public class ConfiguredWriterTests
         var bufferWriter = new ArrayBufferWriter<byte>();
         var target = new MemoryTarget(bufferWriter);
         var writer = new CsvSourceWriter();
-        var configuredWriter = new ConfiguredWriter(target, writer);
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
 
         // Act - This tests the else branch in GetOrCreatePipeWriterAsync for MemoryTarget
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
         }.ToAsyncEnumerable();
         await configuredWriter.WriteAccountsAsync(accounts);
         await TestHelpers.WaitForAsyncWrites();
 
         // Assert
         Assert.True(bufferWriter.WrittenCount > 0);
+    }
+
+    [Fact]
+    public async Task GetOrCreatePipeWriterAsync_WithFileTarget_UsesFileTargetBranch()
+    {
+        // Arrange
+        var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".csv");
+        try
+        {
+            var target = new FileTarget(tempFile);
+            var writer = new CsvSourceWriter();
+            var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+            var accounts = new[]
+            {
+                Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
+            }.ToAsyncEnumerable();
+
+            // Act - This tests the FileTarget branch in GetOrCreatePipeWriterAsync
+            await configuredWriter.WriteAccountsAsync(accounts);
+            await TestHelpers.WaitForAsyncWrites();
+
+            // Assert
+            Assert.True(File.Exists(tempFile));
+            var content = await File.ReadAllTextAsync(tempFile);
+            Assert.Contains("ACC001", content);
+        }
+        finally
+        {
+            try { File.Delete(tempFile); } catch { }
+        }
+    }
+
+    [Fact]
+    public async Task GetOrCreatePipeWriterAsync_WithStreamTarget_UsesStreamTargetBranch()
+    {
+        // Arrange
+        var stream = new MemoryStream();
+        var target = new StreamTarget(stream);
+        var writer = new CsvSourceWriter();
+        var configuredWriter = new ConfiguredWriter<CsvAccountProperties, CsvTransactionProperties>(target, writer);
+        var accounts = new[]
+        {
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
+        }.ToAsyncEnumerable();
+
+        // Act - This tests the StreamTarget branch in GetOrCreatePipeWriterAsync
+        await configuredWriter.WriteAccountsAsync(accounts);
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert
+        stream.Position = 0;
+        var content = Encoding.UTF8.GetString(stream.ToArray());
+        Assert.Contains("ACC001", content);
     }
 
 }

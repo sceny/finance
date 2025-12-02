@@ -10,17 +10,17 @@ namespace Sceny.Finance.IO.Plugin.File.Ofx;
 /// OFX source writer implementation.
 /// Writes OFX files using System.IO.Pipelines for zero-allocation streaming.
 /// </summary>
-public sealed class OfxSourceWriter(OfxOptions? options = null) : ISourceWriter
+public sealed class OfxSourceWriter(OfxOptions? options = null) : ISourceWriter<OfxAccountProperties, OfxTransactionProperties>
 {
     private readonly OfxOptions _options = options ?? new OfxOptions();
     private bool _headerWritten;
     private bool _inBankMessages;
-    private Account? _currentAccount;
+    private Account<OfxAccountProperties>? _currentAccount;
     private bool _inTransactionList;
 
     public async Task WriteAccountsAsync(
         PipeWriter writer,
-        IAsyncEnumerable<Account> accounts,
+        IAsyncEnumerable<Account<OfxAccountProperties>> accounts,
         CancellationToken cancellationToken = default)
     {
         await WriteHeaderAsync(writer, cancellationToken).ConfigureAwait(false);
@@ -34,9 +34,9 @@ public sealed class OfxSourceWriter(OfxOptions? options = null) : ISourceWriter
     }
 
     public async Task WriteTransactionsAsync(
-        Account account,
+        Account<OfxAccountProperties> account,
         PipeWriter writer,
-        IAsyncEnumerable<Transaction> transactions,
+        IAsyncEnumerable<Transaction<OfxTransactionProperties>> transactions,
         CancellationToken cancellationToken = default)
     {
         if (!_headerWritten)
@@ -77,7 +77,7 @@ public sealed class OfxSourceWriter(OfxOptions? options = null) : ISourceWriter
 
     public async Task WriteAccountAsync(
         PipeWriter writer,
-        Account account,
+        Account<OfxAccountProperties> account,
         CancellationToken cancellationToken = default)
     {
         if (!_headerWritten)
@@ -101,7 +101,7 @@ public sealed class OfxSourceWriter(OfxOptions? options = null) : ISourceWriter
 
     public async Task WriteTransactionAsync(
         PipeWriter writer,
-        Transaction transaction,
+        Transaction<OfxTransactionProperties> transaction,
         CancellationToken cancellationToken = default)
     {
         if (!_headerWritten)
@@ -121,11 +121,12 @@ public sealed class OfxSourceWriter(OfxOptions? options = null) : ISourceWriter
             if (!_currentAccount.HasValue)
             {
                 // Create a default account from transaction
-                var account = new Account(
+                var account = new Account<OfxAccountProperties>(
                     transaction.AccountId,
                     transaction.AccountId,
                     AccountType.Other,
-                    "USD"
+                    "USD",
+                    default
                 );
                 await WriteAccountBlockAsync(writer, account, cancellationToken).ConfigureAwait(false);
                 _currentAccount = account;
@@ -190,12 +191,18 @@ NEWFILEUID:NONE
 
     private async Task WriteAccountBlockAsync(
         PipeWriter writer,
-        Account account,
+        Account<OfxAccountProperties> account,
         CancellationToken cancellationToken)
     {
         // Write BANKACCTFROM block
         await WriteAsync(writer, "<BANKACCTFROM>\r\n", cancellationToken).ConfigureAwait(false);
-        await WriteTagAsync(writer, "BANKID", "", cancellationToken).ConfigureAwait(false);
+        
+        var bankId = "";
+        if (account.Properties is IBankId bankIdProp && !bankIdProp.BankId.IsEmpty)
+        {
+            bankId = bankIdProp.BankId.ToString();
+        }
+        await WriteTagAsync(writer, "BANKID", bankId, cancellationToken).ConfigureAwait(false);
         await WriteTagAsync(writer, "ACCTID", account.Id.ToString(), cancellationToken).ConfigureAwait(false);
         await WriteTagAsync(writer, "ACCTTYPE", GetAccountTypeString(account.Type), cancellationToken).ConfigureAwait(false);
         await WriteAsync(writer, "</BANKACCTFROM>\r\n", cancellationToken).ConfigureAwait(false);
@@ -203,11 +210,20 @@ NEWFILEUID:NONE
         // Write account description and currency
         await WriteTagAsync(writer, "DESC", account.Name.ToString(), cancellationToken).ConfigureAwait(false);
         await WriteTagAsync(writer, "CURDEF", account.Currency.ToString(), cancellationToken).ConfigureAwait(false);
+
+        // Write Extended properties as additional tags
+        if (account.Properties is IExtended extendedProp && !extendedProp.Extended.IsEmpty)
+        {
+            foreach (var kvp in extendedProp.Extended)
+            {
+                await WriteTagAsync(writer, kvp.Key.ToString(), kvp.Value.ToString(), cancellationToken).ConfigureAwait(false);
+            }
+        }
     }
 
     private async Task WriteTransactionBlockAsync(
         PipeWriter writer,
-        Transaction transaction,
+        Transaction<OfxTransactionProperties> transaction,
         CancellationToken cancellationToken)
     {
         await WriteAsync(writer, "<STMTTRN>\r\n", cancellationToken).ConfigureAwait(false);
@@ -239,6 +255,15 @@ NEWFILEUID:NONE
             // Generate a FITID if not provided (use date + amount hash)
             var fitid = $"{dateStr}{amountStr.Replace(".", "").Replace("-", "")}";
             await WriteTagAsync(writer, "FITID", fitid, cancellationToken).ConfigureAwait(false);
+        }
+
+        // Write Extended properties as additional tags
+        if (transaction.Properties is IExtended extendedProp && !extendedProp.Extended.IsEmpty)
+        {
+            foreach (var kvp in extendedProp.Extended)
+            {
+                await WriteTagAsync(writer, kvp.Key.ToString(), kvp.Value.ToString(), cancellationToken).ConfigureAwait(false);
+            }
         }
 
         await WriteAsync(writer, "</STMTTRN>\r\n", cancellationToken).ConfigureAwait(false);

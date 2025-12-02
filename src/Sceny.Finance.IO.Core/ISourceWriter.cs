@@ -6,7 +6,11 @@ namespace Sceny.Finance.IO;
 /// Defines the contract for source writers that write financial data to various targets.
 /// Uses IAsyncEnumerable for reactive, streaming writes.
 /// </summary>
-public interface ISourceWriter
+/// <typeparam name="TAccountProperties">The account properties type for this writer</typeparam>
+/// <typeparam name="TTransactionProperties">The transaction properties type for this writer</typeparam>
+public interface ISourceWriter<TAccountProperties, TTransactionProperties>
+    where TAccountProperties : struct, IProperties
+    where TTransactionProperties : struct, IProperties
 {
     /// <summary>
     /// Writes accounts to the target as they are provided.
@@ -17,7 +21,7 @@ public interface ISourceWriter
     /// <returns>Task representing the write operation</returns>
     Task WriteAccountsAsync(
         PipeWriter writer,
-        IAsyncEnumerable<Account> accounts,
+        IAsyncEnumerable<Account<TAccountProperties>> accounts,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -29,9 +33,9 @@ public interface ISourceWriter
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Task representing the write operation</returns>
     Task WriteTransactionsAsync(
-        Account account,
+        Account<TAccountProperties> account,
         PipeWriter writer,
-        IAsyncEnumerable<Transaction> transactions,
+        IAsyncEnumerable<Transaction<TTransactionProperties>> transactions,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -43,7 +47,7 @@ public interface ISourceWriter
     /// <returns>Task representing the write operation</returns>
     Task WriteAccountAsync(
         PipeWriter writer,
-        Account account,
+        Account<TAccountProperties> account,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -55,7 +59,7 @@ public interface ISourceWriter
     /// <returns>Task representing the write operation</returns>
     Task WriteTransactionAsync(
         PipeWriter writer,
-        Transaction transaction,
+        Transaction<TTransactionProperties> transaction,
         CancellationToken cancellationToken = default);
 
     /// <summary>

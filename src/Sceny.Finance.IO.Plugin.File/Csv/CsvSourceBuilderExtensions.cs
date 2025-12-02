@@ -14,12 +14,12 @@ public static class CsvSourceBuilderExtensions
     /// <typeparam name="TSource">The type of source</typeparam>
     /// <param name="builder">The source builder</param>
     /// <returns>A configured reader for CSV format</returns>
-    public static ConfiguredReader AsCsv<TSource>(this SourceBuilder<TSource> builder) where TSource : ISource
+    public static ConfiguredReader<CsvAccountProperties, CsvTransactionProperties> AsCsv<TSource>(this SourceBuilder<TSource> builder) where TSource : ISource
     {
         ArgumentNullException.ThrowIfNull(builder);
 
         var reader = new CsvSourceReader();
-        return new ConfiguredReader(builder.Source, reader);
+        return new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(builder.Source, reader);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ public static class CsvSourceBuilderExtensions
     /// <param name="builder">The source builder</param>
     /// <param name="configure">Action to configure CSV options</param>
     /// <returns>A configured reader for CSV format</returns>
-    public static ConfiguredReader AsCsv<TSource>(this SourceBuilder<TSource> builder, Action<CsvOptions> configure) where TSource : ISource
+    public static ConfiguredReader<CsvAccountProperties, CsvTransactionProperties> AsCsv<TSource>(this SourceBuilder<TSource> builder, Action<CsvOptions> configure) where TSource : ISource
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(configure);
@@ -37,7 +37,7 @@ public static class CsvSourceBuilderExtensions
         var options = new CsvOptions();
         configure(options);
         var reader = new CsvSourceReader(options);
-        return new ConfiguredReader(builder.Source, reader);
+        return new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(builder.Source, reader);
     }
 }
 

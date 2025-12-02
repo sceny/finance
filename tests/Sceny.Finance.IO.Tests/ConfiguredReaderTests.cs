@@ -16,7 +16,7 @@ public class ConfiguredReaderTests
         var reader = new CsvSourceReader();
 
         // Act
-        var configuredReader = new ConfiguredReader(source, reader);
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
 
         // Assert
         Assert.NotNull(configuredReader);
@@ -29,7 +29,7 @@ public class ConfiguredReaderTests
         var reader = new CsvSourceReader();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ConfiguredReader(null!, reader));
+        Assert.Throws<ArgumentNullException>(() => new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(null!, reader));
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class ConfiguredReaderTests
         var source = new StringSource("test");
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new ConfiguredReader(source, null!));
+        Assert.Throws<ArgumentNullException>(() => new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, null!));
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class ConfiguredReaderTests
         // Arrange
         var source = new StringSource("AccountId,AccountName\nACC001,Test");
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
 
         // Act
         var accounts = await configuredReader.GetAccountsAsync().ToListAsync();
@@ -65,7 +65,7 @@ public class ConfiguredReaderTests
         var data = Encoding.UTF8.GetBytes("AccountId,AccountName\nACC001,Test").AsMemory();
         var source = new MemorySource(data);
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
 
         // Act
         var accounts = await configuredReader.GetAccountsAsync().ToListAsync();
@@ -81,8 +81,8 @@ public class ConfiguredReaderTests
         // Arrange
         var source = new StringSource("Date,Amount,Description\n2024-01-15,100.50,Test");
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         var transactions = await configuredReader.GetTransactionsAsync(account).ToListAsync();
@@ -99,8 +99,8 @@ public class ConfiguredReaderTests
         var data = Encoding.UTF8.GetBytes("Date,Amount\n2024-01-15,100.50").AsMemory();
         var source = new MemorySource(data);
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         var transactions = await configuredReader.GetTransactionsAsync(account).ToListAsync();
@@ -116,7 +116,7 @@ public class ConfiguredReaderTests
         // Arrange
         var source = new StringSource("AccountId,AccountName\nACC001,Test");
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
@@ -133,8 +133,8 @@ public class ConfiguredReaderTests
         // Arrange
         var source = new StringSource("Date,Amount\n2024-01-15,100.50");
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
@@ -155,7 +155,7 @@ public class ConfiguredReaderTests
             File.WriteAllText(tempFile, "AccountId,AccountName\nACC001,Test");
             var source = new FileSource(tempFile);
             var reader = new CsvSourceReader();
-            var configuredReader = new ConfiguredReader(source, reader);
+            var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
 
             // Act
             var accounts = await configuredReader.GetAccountsAsync().ToListAsync();
@@ -180,8 +180,8 @@ public class ConfiguredReaderTests
             File.WriteAllText(tempFile, "Date,Amount\n2024-01-15,100.50");
             var source = new FileSource(tempFile);
             var reader = new CsvSourceReader();
-            var configuredReader = new ConfiguredReader(source, reader);
-            var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+            var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
+            var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
             // Act
             var transactions = await configuredReader.GetTransactionsAsync(account).ToListAsync();
@@ -203,7 +203,7 @@ public class ConfiguredReaderTests
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("AccountId,AccountName\nACC001,Test"));
         var source = new StreamSource(stream);
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
 
         // Act
         var accounts = await configuredReader.GetAccountsAsync().ToListAsync();
@@ -220,8 +220,8 @@ public class ConfiguredReaderTests
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("Date,Amount\n2024-01-15,100.50"));
         var source = new StreamSource(stream);
         var reader = new CsvSourceReader();
-        var configuredReader = new ConfiguredReader(source, reader);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var configuredReader = new ConfiguredReader<CsvAccountProperties, CsvTransactionProperties>(source, reader);
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         var transactions = await configuredReader.GetTransactionsAsync(account).ToListAsync();

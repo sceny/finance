@@ -59,7 +59,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,Date,Amount,Description\nACC001,2024-01-15,100.50,Test Transaction\nACC001,2024-01-16,-50.25,Debit\n";
-        var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -76,7 +76,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "ID,PostDate,Amt,Notes\nACC001,2024-01-15,100.50,Test\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv(options =>
@@ -98,7 +98,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "AccountId,Date,Amount\nACC001,2024-01-15,100.50\nACC001,2024-01-16,-50.25\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -245,7 +245,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = string.Empty;
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -258,7 +258,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Description\nINVALID-DATE,100.50,Test\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -271,7 +271,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Description\n2024-01-15,INVALID,Test\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -284,7 +284,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Description\n2024-01-15,100.50,Test\n\n2024-01-16,-50.25,Debit\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -297,7 +297,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount\n2024-01-15,100.50\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -311,7 +311,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Description\n2024-01-15,100.50,Test\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -325,7 +325,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Type\n2024-01-15,100.50,Transfer\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -339,7 +339,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount\n2024-01-15,0.00\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -353,7 +353,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date\tAmount\tDescription\n2024-01-15\t100.50\tTest\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv(options => options.Delimiter = '\t').GetTransactionsAsync(account).ToListAsync();
@@ -368,7 +368,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount\n2024-01-15,100.50\n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var cts = new CancellationTokenSource();
         cts.Cancel();
 
@@ -399,7 +399,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Description\n  2024-01-15  ,  100.50  ,  Test  \n";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
 
@@ -634,7 +634,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Type\n2024-01-15,100.50,INVALID";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
@@ -649,7 +649,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Type\n2024-01-15,100.50,";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();
@@ -664,7 +664,7 @@ public class CsvSourceReaderTests
     {
         // Arrange
         var csv = "Date,Amount,Type\n2024-01-15,-50.25,NOTVALID";
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         
         // Act
         var transactions = await FinanceReader.FromString(csv).AsCsv().GetTransactionsAsync(account).ToListAsync();

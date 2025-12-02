@@ -1,0 +1,442 @@
+---
+description: Generic properties system for type-safe, zero-allocation source-specific data in Sceny.Finance.IO
+alwaysApply: true
+---
+
+# Generic Properties System
+
+## Overview
+
+The generic properties system enables type-safe, zero-allocation handling of source-specific data for `Account` and `Transaction` models. It supports three types of properties:
+
+1. **Properties (Typed/Structured)**: Source-specific strongly-typed properties (e.g., `BankName`, `BranchCode`, `BankId`)
+2. **Extended (Unstructured/Document-DB)**: Unstructured key-value pairs per model, capturing all source values not mapped to typed properties
+3. **Attachments**: Binary data or file references with metadata
+
+## Core Concepts
+
+### Generic Models
+
+All domain models are generic over a `TProperties` type parameter:
+
+```csharp
+public readonly struct Account<TProperties>
+    where TProperties : struct, IProperties
+{
+    public ReadOnlyString Id { get; }
+    public ReadOnlyString Name { get; }
+    public AccountType Type { get; }
+    public ReadOnlyString Currency { get; }
+    public TProperties Properties { get; }
+    // ...
+}
+
+public readonly struct Transaction<TProperties>
+    where TProperties : struct, IProperties
+{
+    public ReadOnlyString AccountId { get; }
+    public decimal Amount { get; }
+    public DateTime Date { get; }
+    public ReadOnlyString Description { get; }
+    public TransactionType Type { get; }
+    public ReadOnlyString Reference { get; }
+    public TProperties Properties { get; }
+    // ...
+}
+```
+
+**Key Points:**
+- Base fields (Id, Name, Type, Currency, etc.) are **flattened** directly on the model, not nested
+- `TProperties` must be a `readonly struct` implementing `IProperties`
+- All models are zero-allocation using `ReadOnlyString`, `ReadOnlyMemory<T>`, and `ReadOnlySpan<T>`
+
+### IProperties Marker Interface
+
+All property structs must implement the `IProperties` marker interface:
+
+```csharp
+public interface IProperties
+{
+}
+```
+
+This interface serves as a type constraint to ensure only valid property types are used.
+
+### Atomic Interfaces
+
+Atomic interfaces declare individual property capabilities. Each interface exposes a single property:
+
+```csharp
+// Typed properties
+public interface IBankName : IProperties
+{
+    ReadOnlyString BankName { get; }
+}
+
+public interface IBranchCode : IProperties
+{
+    ReadOnlyString BranchCode { get; }
+}
+
+public interface IBankId : IProperties
+{
+    ReadOnlyString BankId { get; }
+}
+
+// Extended (unstructured)
+public interface IExtended : IProperties
+{
+    ReadOnlyExtended Extended { get; }
+}
+
+// Attachments
+public interface IAttachments : IProperties
+{
+    ReadOnlyAttachments Attachments { get; }
+}
+```
+
+**Usage Pattern:**
+- Properties structs implement relevant atomic interfaces to declare their capabilities
+- Access properties via pattern matching: `if (account.Properties is IBankName bankNameProp) { ... }`
+- No convenience accessors on root model - must access via `Properties` struct
+
+### Source-Specific Properties
+
+Each format provider defines its own properties struct:
+
+```csharp
+// CSV properties
+public readonly struct CsvAccountProperties :
+    IProperties,
+    IPropertiesFactory<CsvAccountProperties>,
+    IBankName,
+    IBranchCode,
+    IExtended,
+    IAttachments
+{
+    public ReadOnlyString BankName { get; }
+    public ReadOnlyString BranchCode { get; }
+    public ReadOnlyExtended Extended { get; }
+    public ReadOnlyAttachments Attachments { get; }
+    // ...
+}
+
+// OFX properties
+public readonly struct OfxAccountProperties :
+    IProperties,
+    IPropertiesFactory<OfxAccountProperties>,
+    IBankId,
+    IExtended
+{
+    public ReadOnlyString BankId { get; }
+    public ReadOnlyExtended Extended { get; }
+    // ...
+}
+```
+
+## Property Mapping
+
+### IPropertiesFactory Pattern
+
+Generic property mapping uses C# 11+ static abstract interface members for zero-allocation, reflection-free mapping:
+
+```csharp
+public interface IPropertiesFactory<T> where T : struct, IProperties
+{
+    static abstract T FromSource<TSource>(TSource source) where TSource : struct, IProperties;
+}
+```
+
+Each properties struct implements this interface with pattern matching logic:
+
+```csharp
+static CsvAccountProperties IPropertiesFactory<CsvAccountProperties>.FromSource<TSource>(TSource source)
+{
+    return new CsvAccountProperties(
+        bankName: source is IBankName bn ? bn.BankName : default,
+        branchCode: source is IBranchCode bc ? bc.BranchCode : default,
+        extended: source is IExtended ext ? ext.Extended : default,
+        attachments: source is IAttachments att ? att.Attachments : default
+    );
+}
+```
+
+### PropertyMapper Utility
+
+The `PropertyMapper` class provides generic mapping between different property types:
+
+```csharp
+// Map Account from CSV to OFX
+var ofxAccount = PropertyMapper.MapProperties<CsvAccountProperties, OfxAccountProperties>(csvAccount);
+
+// Map Transaction from OFX to CSV
+var csvTransaction = PropertyMapper.MapProperties<OfxTransactionProperties, CsvTransactionProperties>(ofxTransaction);
+```
+
+**Key Points:**
+- Zero-allocation mapping using pattern matching
+- Automatically extracts available properties via atomic interfaces
+- Missing properties default to `default` values
+- Extended properties are preserved when both source and target support `IExtended`
+
+## Extended Properties (Unstructured)
+
+### ReadOnlyExtended
+
+`ReadOnlyExtended` provides a zero-allocation key-value store for unstructured data:
+
+```csharp
+public readonly struct ReadOnlyExtended : IEnumerable<KeyValuePair<ReadOnlyString, ReadOnlyString>>
+{
+    public int Count { get; }
+    public bool IsEmpty { get; }
+    public bool TryGetValue(ReadOnlyString key, out ReadOnlyString value);
+    public bool ContainsKey(ReadOnlyString key);
+    public ReadOnlyString GetValueOrDefault(ReadOnlyString key);
+    // ...
+}
+```
+
+**Usage:**
+```csharp
+if (account.Properties is IExtended ext)
+{
+    if (ext.Extended.TryGetValue("CustomField1", out var value))
+    {
+        // Use value
+    }
+    
+    foreach (var pair in ext.Extended)
+    {
+        // Enumerate all key-value pairs
+    }
+}
+```
+
+## Attachments
+
+### Attachment and ReadOnlyAttachments
+
+Attachments represent binary data with metadata:
+
+```csharp
+public readonly struct Attachment
+{
+    public ReadOnlyString Name { get; }
+    public ReadOnlyString ContentType { get; }
+    public ReadOnlyMemory<byte> Data { get; }
+    public ReadOnlyString Reference { get; }
+    public bool HasData { get; }
+    public int Size { get; }
+}
+
+public readonly struct ReadOnlyAttachments : IEnumerable<Attachment>
+{
+    public int Count { get; }
+    public bool IsEmpty { get; }
+    public Attachment this[int index] { get; }
+    // ...
+}
+```
+
+**Usage:**
+```csharp
+if (account.Properties is IAttachments att)
+{
+    var count = att.Attachments.Count;
+    foreach (var attachment in att.Attachments)
+    {
+        var data = attachment.Data.ToArray();
+        // Process attachment
+    }
+}
+```
+
+## API Usage
+
+### Reading with Generic Properties
+
+```csharp
+// Read accounts with CSV properties
+await foreach (var account in FinanceReader.FromFile("data.csv").AsCsv().GetAccountsAsync())
+{
+    // Access base fields directly
+    var id = account.Id;
+    var name = account.Name;
+    
+    // Access typed properties via pattern matching
+    if (account.Properties is IBankName bankNameProp)
+    {
+        var bankName = bankNameProp.BankName;
+    }
+    
+    // Access extended properties
+    if (account.Properties is IExtended ext)
+    {
+        if (ext.Extended.TryGetValue("CustomField", out var value))
+        {
+            // Use custom field value
+        }
+    }
+    
+    // Access attachments
+    if (account.Properties is IAttachments att)
+    {
+        foreach (var attachment in att.Attachments)
+        {
+            // Process attachment
+        }
+    }
+}
+```
+
+### Writing with Generic Properties
+
+```csharp
+var writer = FinanceWriter.ToFile("output.csv").AsCsv();
+await writer.BeginWriteAsync();
+
+var account = Account<CsvAccountProperties>.FromStrings(
+    "ACC001", 
+    "Test Account", 
+    AccountType.Checking, 
+    "USD",
+    new CsvAccountProperties(
+        bankName: "Test Bank",
+        branchCode: "001",
+        extended: extendedProperties,
+        attachments: attachmentCollection
+    )
+);
+
+await writer.WriteAccountAsync(account);
+await writer.EndWriteAsync();
+```
+
+### Format Conversion
+
+```csharp
+// Read from CSV, convert to OFX
+var csvAccounts = FinanceReader.FromFile("data.csv").AsCsv().GetAccountsAsync();
+var writer = FinanceWriter.ToFile("output.ofx").AsOfx();
+
+await writer.BeginWriteAsync();
+await foreach (var csvAccount in csvAccounts)
+{
+    // Map properties from CSV to OFX
+    var ofxAccount = PropertyMapper.MapProperties<CsvAccountProperties, OfxAccountProperties>(csvAccount);
+    await writer.WriteAccountAsync(ofxAccount);
+}
+await writer.EndWriteAsync();
+```
+
+## Implementation Guidelines
+
+### Creating New Property Types
+
+1. **Define the properties struct:**
+   ```csharp
+   public readonly struct MyAccountProperties :
+       IProperties,
+       IPropertiesFactory<MyAccountProperties>,
+       IBankName,  // Implement relevant atomic interfaces
+       IExtended
+   {
+       public ReadOnlyString BankName { get; }
+       public ReadOnlyExtended Extended { get; }
+       
+       public MyAccountProperties(
+           ReadOnlyString bankName = default,
+           ReadOnlyExtended extended = default)
+       {
+           BankName = bankName;
+           Extended = extended;
+       }
+       
+       static MyAccountProperties IPropertiesFactory<MyAccountProperties>.FromSource<TSource>(TSource source)
+       {
+           return new MyAccountProperties(
+               bankName: source is IBankName bn ? bn.BankName : default,
+               extended: source is IExtended ext ? ext.Extended : default
+           );
+       }
+   }
+   ```
+
+2. **Update ISourceReader/ISourceWriter:**
+   ```csharp
+   public interface ISourceReader<TAccountProperties, TTransactionProperties>
+       where TAccountProperties : struct, IProperties
+       where TTransactionProperties : struct, IProperties
+   {
+       IAsyncEnumerable<Account<TAccountProperties>> GetAccountsAsync(...);
+       IAsyncEnumerable<Transaction<TTransactionProperties>> GetTransactionsAsync(...);
+   }
+   ```
+
+3. **Use in format provider:**
+   ```csharp
+   public static ConfiguredReader<MyAccountProperties, MyTransactionProperties> AsMyFormat<TSource>(
+       this SourceBuilder<TSource> builder)
+       where TSource : ISource
+   {
+       var reader = new MySourceReader();
+       return new ConfiguredReader<MyAccountProperties, MyTransactionProperties>(builder.Source, reader);
+   }
+   ```
+
+### Accessing Properties
+
+**ALWAYS use pattern matching - no convenience accessors:**
+```csharp
+// ✅ Correct
+if (account.Properties is IBankName bankNameProp)
+{
+    var bankName = bankNameProp.BankName;
+}
+
+// ❌ Wrong - no convenience accessors exist
+var bankName = account.BankName;  // This doesn't exist!
+```
+
+### Property Mapping Best Practices
+
+1. **Always implement `IPropertiesFactory<T>`** for your properties struct
+2. **Use pattern matching** in `FromSource` to extract available properties
+3. **Preserve Extended properties** when both source and target support `IExtended`
+4. **Default missing properties** to `default` values
+5. **Test all mapping combinations** (source with/without each interface)
+
+## Zero-Allocation Requirements
+
+All property operations must be zero-allocation:
+
+- ✅ Use `ReadOnlyString` for all string properties
+- ✅ Use `ReadOnlyMemory<T>` for collections and binary data
+- ✅ Use `ReadOnlySpan<T>` for span-based operations
+- ✅ Use `readonly struct` for all property types
+- ✅ Use pattern matching (compile-time, no reflection)
+- ✅ Use `ArrayPool<T>` if allocations are necessary
+- ❌ No string allocations in hot paths
+- ❌ No boxing or object creation
+- ❌ No reflection-based property access
+
+## Testing Requirements
+
+When testing generic properties:
+
+1. **Test all atomic interface combinations** - ensure pattern matching works for all interface combinations
+2. **Test property mapping** - test mapping between all property type combinations
+3. **Test Extended properties** - test empty, single item, and multiple items
+4. **Test Attachments** - test empty, single attachment, and multiple attachments
+5. **Test edge cases** - test when source doesn't implement expected interfaces
+6. **Verify zero-allocation** - use benchmarks to verify no allocations
+
+## Examples
+
+See test files for comprehensive examples:
+- `tests/Sceny.Finance.IO.Tests/PropertyMapperTests.cs` - Property mapping examples
+- `tests/Sceny.Finance.IO.Tests/ReadOnlyExtendedTests.cs` - Extended properties examples
+- `tests/Sceny.Finance.IO.Tests/AttachmentTests.cs` - Attachment examples
+- `tests/Sceny.Finance.IO.Benchmarks/GenericPropertiesBenchmarks.cs` - Performance examples

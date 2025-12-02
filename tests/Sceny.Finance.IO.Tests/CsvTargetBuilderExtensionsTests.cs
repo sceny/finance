@@ -73,7 +73,7 @@ public class CsvTargetBuilderExtensionsTests
             options.Delimiter = ';';
             options.HasHeaders = false;
         });
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await writer.BeginWriteAsync();

@@ -15,7 +15,7 @@ public class CsvSourceWriterTests
         var target = FinanceWriter.ToString(sb).AsCsv();
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Checking Account", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Checking Account", AccountType.Checking, "USD", default(CsvAccountProperties))
         };
 
         // Act
@@ -42,7 +42,7 @@ public class CsvSourceWriterTests
         var target = FinanceWriter.ToString(sb).AsCsv(options => options.HasHeaders = false);
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties))
         };
 
         // Act
@@ -61,7 +61,7 @@ public class CsvSourceWriterTests
         // Arrange - Test the !_options.HasHeaders branch in WriteHeaderAsync
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv(options => options.HasHeaders = false);
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -81,7 +81,7 @@ public class CsvSourceWriterTests
         // Arrange - Test the !_options.HasHeaders branch when writing transactions
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv(options => options.HasHeaders = false);
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -101,11 +101,11 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
         var transactions = new[]
         {
-            Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test Transaction", TransactionType.Credit),
-            Transaction.FromStrings("ACC001", -50.25m, DateTime.Parse("2024-01-16"), "Debit Transaction", TransactionType.Debit)
+            Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test Transaction", TransactionType.Credit, default(CsvTransactionProperties)),
+            Transaction<CsvTransactionProperties>.FromStrings("ACC001", -50.25m, DateTime.Parse("2024-01-16"), "Debit Transaction", TransactionType.Debit, default(CsvTransactionProperties))
         };
 
         // Act
@@ -132,7 +132,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -152,7 +152,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -173,7 +173,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var account = Account.FromStrings("ACC001", "Account, With, Commas", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Account, With, Commas", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -192,7 +192,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Description \"with\" quotes", TransactionType.Credit);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Description \"with\" quotes", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -211,7 +211,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Description\nwith\nnewlines", TransactionType.Credit);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Description\nwith\nnewlines", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -231,7 +231,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv(options => options.Delimiter = ';');
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -250,7 +250,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv(options => options.DateFormat = "MM/dd/yyyy");
-        var transaction = Transaction.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit);
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, default(CsvTransactionProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -269,7 +269,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -291,7 +291,7 @@ public class CsvSourceWriterTests
         // Arrange
         var sb = new StringBuilder();
         var target = FinanceWriter.ToString(sb).AsCsv();
-        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test", AccountType.Checking, "USD", default(CsvAccountProperties));
 
         // Act
         await target.BeginWriteAsync();
@@ -314,8 +314,8 @@ public class CsvSourceWriterTests
         var target = FinanceWriter.ToString(sb).AsCsv();
         var accounts = new[]
         {
-            Account.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD"),
-            Account.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR")
+            Account<CsvAccountProperties>.FromStrings("ACC001", "Account 1", AccountType.Checking, "USD", default(CsvAccountProperties)),
+            Account<CsvAccountProperties>.FromStrings("ACC002", "Account 2", AccountType.Savings, "EUR", default(CsvAccountProperties))
         };
 
         // Act
@@ -328,6 +328,66 @@ public class CsvSourceWriterTests
         Assert.Contains("ACC002", result);
         Assert.Contains("Account 1", result);
         Assert.Contains("Account 2", result);
+    }
+
+    [Fact]
+    public async Task WriteTransactionAsync_WithExtendedProperties_WritesExtendedValues()
+    {
+        // Arrange - Test the branch where transaction has Extended properties
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsCsv();
+        var extendedPairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[]
+        {
+            new("CustomField1", "Value1"),
+            new("CustomField2", "Value2")
+        };
+        var extended = new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(extendedPairs));
+        var txProps = new CsvTransactionProperties(
+            extended: extended,
+            attachments: default
+        );
+        var transaction = Transaction<CsvTransactionProperties>.FromStrings("ACC001", 100.50m, DateTime.Parse("2024-01-15"), "Test", TransactionType.Credit, txProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteTransactionAsync(transaction);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert - Extended properties should be written as additional columns
+        var result = sb.ToString();
+        Assert.Contains("Value1", result);
+        Assert.Contains("Value2", result);
+    }
+
+    [Fact]
+    public async Task WriteAccountAsync_WithExtendedProperties_WritesExtendedValues()
+    {
+        // Arrange - Test the branch where account has Extended properties
+        var sb = new StringBuilder();
+        var target = FinanceWriter.ToString(sb).AsCsv();
+        var extendedPairs = new KeyValuePair<ReadOnlyString, ReadOnlyString>[]
+        {
+            new("CustomField1", "Value1")
+        };
+        var extended = new ReadOnlyExtended(new ReadOnlyMemory<KeyValuePair<ReadOnlyString, ReadOnlyString>>(extendedPairs));
+        var csvProps = new CsvAccountProperties(
+            bankName: "Test Bank",
+            branchCode: "001",
+            extended: extended,
+            attachments: default
+        );
+        var account = Account<CsvAccountProperties>.FromStrings("ACC001", "Test Account", AccountType.Checking, "USD", csvProps);
+
+        // Act
+        await target.BeginWriteAsync();
+        await target.WriteAccountAsync(account);
+        await target.EndWriteAsync();
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert - Extended properties should be written
+        var result = sb.ToString();
+        Assert.Contains("Value1", result);
     }
 }
 
