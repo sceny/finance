@@ -1,6 +1,6 @@
 ---
 description: Performance guidelines and zero-allocation requirements for Sceny.Finance.IO
-globs: ["**/*.cs"]
+globs: *.cs
 alwaysApply: false
 ---
 

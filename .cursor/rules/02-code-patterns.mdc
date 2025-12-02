@@ -1,6 +1,6 @@
 ---
 description: Code patterns and implementation guidelines for Sceny.Finance.IO
-globs: ["**/*.cs"]
+globs: *.cs
 alwaysApply: false
 ---
 

@@ -1,6 +1,5 @@
 ---
 description: Guidelines for extending Sceny.Finance.IO with new sources and formats
-globs: []
 alwaysApply: true
 ---
 

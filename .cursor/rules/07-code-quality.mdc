@@ -1,6 +1,6 @@
 ---
 description: Code quality standards, naming conventions, and documentation guidelines for Sceny.Finance.IO
-globs: ["**/*.cs"]
+globs: *.cs
 alwaysApply: false
 ---
 

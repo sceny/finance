@@ -1,6 +1,6 @@
 ---
 description: Testing requirements and patterns for Sceny.Finance.IO
-globs: ["**/*Test*.cs", "**/*Tests/**/*.cs", "**/*Benchmark*.cs", "**/*Benchmarks/**/*.cs"]
+globs: **/*Test*.cs,**/*Tests/**/*.cs,**/*Benchmark*.cs,**/*Benchmarks/**/*.cs
 alwaysApply: false
 ---
 
