@@ -536,6 +536,20 @@ public class ReadOnlyStringTests
     }
 
     [Fact]
+    public void TryParse_WithEmptySpan_ReturnsTrueWithDefault()
+    {
+        // Arrange
+        var span = ReadOnlySpan<char>.Empty;
+
+        // Act
+        var success = ReadOnlyString.TryParse(span, CultureInfo.InvariantCulture, out var result);
+
+        // Assert
+        Assert.True(success);
+        Assert.True(result.IsEmpty);
+    }
+
+    [Fact]
     public void Enumerate_IteratesThroughCharacters()
     {
         // Arrange
@@ -783,6 +797,20 @@ public class ReadOnlyStringTests
     }
 
     [Fact]
+    public void TrimEnd_WithNoTrailingWhitespace_ReturnsSame()
+    {
+        // Arrange
+        ReadOnlyString ros = "hello";
+
+        // Act
+        var result = ros.TrimEnd();
+
+        // Assert
+        Assert.Equal("hello", result.ToString());
+        Assert.Equal(ros, result);
+    }
+
+    [Fact]
     public void Equals_WithNullObject_ReturnsFalse()
     {
         // Arrange
@@ -802,6 +830,30 @@ public class ReadOnlyStringTests
         // Note: ReadOnlyString.Equals(object?) checks if obj is ReadOnlyString
         // Comparing with a string object will return false since it's not a ReadOnlyString
         Assert.False(ros.Equals((object)"test"));
+    }
+
+    [Fact]
+    public void Equals_WithReadOnlyStringObject_ReturnsTrue()
+    {
+        // Arrange
+        ReadOnlyString ros1 = "test";
+        ReadOnlyString ros2 = "test";
+
+        // Act & Assert
+        // This tests the branch where obj IS a ReadOnlyString
+        Assert.True(ros1.Equals((object)ros2));
+    }
+
+    [Fact]
+    public void Equals_WithReadOnlyStringObjectDifferentValue_ReturnsFalse()
+    {
+        // Arrange
+        ReadOnlyString ros1 = "test";
+        ReadOnlyString ros2 = "other";
+
+        // Act & Assert
+        // This tests the branch where obj IS a ReadOnlyString but values differ
+        Assert.False(ros1.Equals((object)ros2));
     }
 
     [Fact]
@@ -865,6 +917,19 @@ public class ReadOnlyStringTests
 
         // Assert
         Assert.Equal("test", result.ToString());
+    }
+
+    [Fact]
+    public void Parse_WithEmptySpan_ReturnsDefault()
+    {
+        // Arrange
+        var span = ReadOnlySpan<char>.Empty;
+
+        // Act
+        var result = ReadOnlyString.Parse(span, CultureInfo.InvariantCulture);
+
+        // Assert
+        Assert.True(result.IsEmpty);
     }
 
     [Fact]

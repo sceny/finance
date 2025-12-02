@@ -134,5 +134,83 @@ public static class CopyExtensions
             return await target.GetPipeWriterAsync(cancellationToken).ConfigureAwait(false);
         }
     }
+
+    /// <summary>
+    /// Copies accounts from a ConfiguredReader to a ConfiguredWriter in a zero-allocation way.
+    /// This is a one-hit fluent setup for copying accounts between any format.
+    /// </summary>
+    /// <param name="reader">The configured reader to read accounts from</param>
+    /// <param name="writer">The configured writer to write accounts to</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Task representing the copy operation</returns>
+    public static async Task CopyAccountsToAsync(
+        this ConfiguredReader reader,
+        ConfiguredWriter writer,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(writer);
+
+        var accounts = reader.GetAccountsAsync(cancellationToken);
+        await writer.WriteAccountsAsync(accounts, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Copies transactions for a specific account from a ConfiguredReader to a ConfiguredWriter in a zero-allocation way.
+    /// This is a one-hit fluent setup for copying transactions between any format.
+    /// </summary>
+    /// <param name="reader">The configured reader to read transactions from</param>
+    /// <param name="account">The account to copy transactions for</param>
+    /// <param name="writer">The configured writer to write transactions to</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Task representing the copy operation</returns>
+    public static async Task CopyTransactionsToAsync(
+        this ConfiguredReader reader,
+        Account account,
+        ConfiguredWriter writer,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(writer);
+
+        var transactions = reader.GetTransactionsAsync(account, cancellationToken);
+        await writer.WriteTransactionsAsync(account, transactions, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Copies all accounts and their transactions from a ConfiguredReader to a ConfiguredWriter in a zero-allocation way.
+    /// This is a one-hit fluent setup for full hierarchical copy between any format.
+    /// </summary>
+    /// <param name="reader">The configured reader to read from</param>
+    /// <param name="writer">The configured writer to write to</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Task representing the copy operation</returns>
+    public static async Task CopyAllToAsync(
+        this ConfiguredReader reader,
+        ConfiguredWriter writer,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(writer);
+
+        await writer.BeginWriteAsync(cancellationToken).ConfigureAwait(false);
+
+        try
+        {
+            await foreach (var account in reader.GetAccountsAsync(cancellationToken).ConfigureAwait(false))
+            {
+                await writer.WriteAccountAsync(account, cancellationToken).ConfigureAwait(false);
+
+                await foreach (var transaction in reader.GetTransactionsAsync(account, cancellationToken).ConfigureAwait(false))
+                {
+                    await writer.WriteTransactionAsync(transaction, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+        finally
+        {
+            await writer.EndWriteAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
 }
 

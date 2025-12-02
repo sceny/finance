@@ -885,5 +885,174 @@ DATA:OFXSGML
         Assert.NotNull(reader);
     }
 
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateAndTime_ParsesCorrectly()
+    {
+        // Arrange - Test the 14+ character date format with time
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115103000</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(new DateTime(2024, 1, 15, 10, 30, 0), transactions[0].Date);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneOffset_ParsesCorrectly()
+    {
+        // Arrange - Test date with timezone offset (+05:00 format)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115103000+05:00</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert - Should parse the date (timezone offset may be stripped)
+        Assert.Single(transactions);
+        Assert.Equal(new DateTime(2024, 1, 15, 10, 30, 0).Date, transactions[0].Date.Date);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithDateTimezoneOffsetMinus_ParsesCorrectly()
+    {
+        // Arrange - Test date with negative timezone offset (-03:00 format)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115103000-03:00</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(new DateTime(2024, 1, 15, 10, 30, 0).Date, transactions[0].Date.Date);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithInvalidTimeValues_HandlesGracefully()
+    {
+        // Arrange - Test invalid time (hour >= 24, minute >= 60, second >= 60)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115253000</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert - Should still parse date part even if time is invalid
+        Assert.Single(transactions);
+        Assert.Equal(new DateTime(2024, 1, 15).Date, transactions[0].Date.Date);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithTagWithoutClosingTag_ParsesUntilNextTag()
+    {
+        // Arrange - Test ExtractTagValue branch where closing tag is not found (uses next < as terminator)
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115
+<TRNAMT>100.50</TRNAMT>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert - Should handle malformed date tag
+        Assert.Single(transactions);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithTagWithoutClosingTagNewline_ParsesUntilNewline()
+    {
+        // Arrange - Test ExtractTagValue branch where closing tag is not found (uses newline as terminator)
+        // Note: This tests the branch but may result in parsing issues, so we just verify it doesn't crash
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<MEMO>Test value
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act & Assert - Should handle gracefully
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+        Assert.Single(transactions);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithEmptyTransactionType_UsesAmountInference()
+    {
+        // Arrange - Test ParseTransactionType with empty trntype
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<TRNTYPE></TRNTYPE>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert - Should infer Credit from positive amount
+        Assert.Single(transactions);
+        Assert.Equal(TransactionType.Credit, transactions[0].Type);
+    }
+
+    [Fact]
+    public async Task GetTransactionsAsync_WithTransferVariant_ParsesCorrectly()
+    {
+        // Arrange - Test "TRANSFER" variant (not just "XFER")
+        var ofx = @"<STMTTRN>
+<DTPOSTED>20240115</DTPOSTED>
+<TRNAMT>100.50</TRNAMT>
+<TRNTYPE>TRANSFER</TRNTYPE>
+<FITID>FIT001</FITID>
+</STMTTRN>";
+        var account = Account.FromStrings("ACC001", "Test", AccountType.Checking, "USD");
+        
+        // Act
+        var transactions = await FinanceReader.FromString(ofx).AsOfx().GetTransactionsAsync(account).ToListAsync();
+
+        // Assert
+        Assert.Single(transactions);
+        Assert.Equal(TransactionType.Transfer, transactions[0].Type);
+    }
+
+    [Fact]
+    public async Task GetAccountsAsync_WithEmptyAccountType_ReturnsOther()
+    {
+        // Arrange - Test ParseAccountType with empty acctType
+        var ofx = @"<BANKACCTFROM>
+<ACCTID>ACC001</ACCTID>
+<ACCTTYPE></ACCTTYPE>
+</BANKACCTFROM>";
+        
+        // Act
+        var accounts = await FinanceReader.FromString(ofx).AsOfx().GetAccountsAsync().ToListAsync();
+
+        // Assert
+        Assert.Single(accounts);
+        Assert.Equal(AccountType.Other, accounts[0].Type);
+    }
+
 }
 

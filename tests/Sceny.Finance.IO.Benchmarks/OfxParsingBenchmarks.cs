@@ -7,7 +7,6 @@ using Sceny.Finance.IO.Plugin.File.Ofx;
 namespace Sceny.Finance.IO.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
 public class OfxParsingBenchmarks
 {
     private readonly byte[] _ofxData;

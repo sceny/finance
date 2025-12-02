@@ -7,7 +7,6 @@ using Sceny.Finance.IO;
 namespace Sceny.Finance.IO.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
 public class PipelineBenchmarks
 {
     private readonly byte[] _testData;

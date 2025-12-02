@@ -30,6 +30,51 @@ public class UtilitiesTests
     }
 
     [Fact]
+    public async Task CreatePipeWriterFromStringBuilder_WithNullEncoding_UsesUtf8()
+    {
+        // Arrange
+        var sb = new StringBuilder();
+        
+        // Act - Pass null encoding to test the default branch
+        var writer = Utilities.CreatePipeWriterFromStringBuilder(sb, encoding: null);
+        var data = Encoding.UTF8.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        await writer.FlushAsync();
+        writer.Complete();
+        
+        // Wait for background task
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert
+        Assert.Equal("test", sb.ToString());
+    }
+
+    [Fact]
+    public async Task CreatePipeWriterFromStringBuilder_WithExplicitEncoding_UsesProvidedEncoding()
+    {
+        // Arrange
+        var sb = new StringBuilder();
+        var encoding = Encoding.ASCII;
+        
+        // Act
+        var writer = Utilities.CreatePipeWriterFromStringBuilder(sb, encoding);
+        var data = encoding.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        await writer.FlushAsync();
+        writer.Complete();
+        
+        // Wait for background task
+        await TestHelpers.WaitForAsyncWrites();
+
+        // Assert
+        Assert.Equal("test", sb.ToString());
+    }
+
+    [Fact]
     public async Task ReadCompleteSequenceAsync_WithSingleSegment_ReturnsSequence()
     {
         // Arrange
@@ -271,6 +316,51 @@ public class UtilitiesTests
         // Assert
         Assert.Equal(0, sequence.Length);
         pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public async Task ReadCompleteSequenceAsync_WithDataButNotCompleted_ReturnsSequence()
+    {
+        // Arrange - Test the branch where buffer.Length > 0 causes early break (not completed)
+        var pipe = new Pipe();
+        var writer = pipe.Writer;
+        var data = Encoding.UTF8.GetBytes("test");
+        var span = writer.GetSpan(data.Length);
+        data.CopyTo(span);
+        writer.Advance(data.Length);
+        await writer.FlushAsync();
+        // Don't complete - test early break with buffer.Length > 0
+
+        // Act
+        var sequence = await Utilities.ReadCompleteSequenceAsync(pipe.Reader);
+
+        // Assert
+        Assert.True(sequence.Length > 0);
+        
+        // Complete for cleanup
+        writer.Complete();
+        pipe.Reader.Complete();
+    }
+
+    [Fact]
+    public async Task ReadCompleteSequenceAsync_WithIsCanceledFlag_ReturnsEarly()
+    {
+        // Arrange - Test the IsCanceled branch separately
+        var pipe = new Pipe();
+        var cts = new CancellationTokenSource();
+        
+        // Start a read that will be canceled
+        var readTask = Utilities.ReadCompleteSequenceAsync(pipe.Reader, cts.Token);
+        cts.Cancel();
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+        {
+            await readTask;
+        });
+        
+        pipe.Reader.Complete();
+        pipe.Writer.Complete();
     }
 
     [Fact]

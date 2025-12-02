@@ -7,7 +7,6 @@ using Sceny.Finance.IO.Plugin.File.Csv;
 namespace Sceny.Finance.IO.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net90)]
 public class CsvParsingBenchmarks
 {
     private readonly byte[] _csvData;

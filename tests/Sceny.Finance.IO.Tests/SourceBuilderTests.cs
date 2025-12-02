@@ -1,4 +1,5 @@
 using Sceny.Finance.IO;
+using Sceny.Finance.IO.Sources;
 
 namespace Sceny.Finance.IO.Tests;
 
@@ -37,6 +38,13 @@ public class SourceBuilderTests
         {
             File.Delete(tempFile);
         }
+    }
+
+    [Fact]
+    public void Constructor_WithNullSource_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new SourceBuilder<MemorySource>(null!));
     }
 }
 
