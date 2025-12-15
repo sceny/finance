@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+trigger: always
 ---
 
 # Generic Properties System

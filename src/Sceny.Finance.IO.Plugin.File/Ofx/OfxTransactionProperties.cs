@@ -25,3 +25,22 @@ public readonly struct OfxTransactionProperties :
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

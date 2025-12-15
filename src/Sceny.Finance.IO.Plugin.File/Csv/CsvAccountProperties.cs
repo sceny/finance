@@ -47,3 +47,22 @@ public readonly struct CsvAccountProperties :
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

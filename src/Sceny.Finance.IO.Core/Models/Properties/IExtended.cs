@@ -12,3 +12,22 @@ public interface IExtended
     ReadOnlyExtended Extended { get; }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

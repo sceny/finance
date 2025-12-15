@@ -12,3 +12,19 @@ public interface IBranchCode
     ReadOnlyString BranchCode { get; }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

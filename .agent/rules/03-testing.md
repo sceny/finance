@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+trigger: glob
 globs: **/*Test*.cs,**/*Tests/**/*.cs,**/*Benchmark*.cs,**/*Benchmarks/**/*.cs
 ---
 

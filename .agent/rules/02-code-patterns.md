@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+trigger: glob
 globs: *.cs
 ---
 

@@ -33,3 +33,22 @@ public readonly struct OfxAccountProperties :
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

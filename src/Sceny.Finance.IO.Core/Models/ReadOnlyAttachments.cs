@@ -85,3 +85,22 @@ public readonly struct ReadOnlyAttachments : IEnumerable<Attachment>
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

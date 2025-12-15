@@ -12,3 +12,22 @@ public interface IAttachments
     ReadOnlyAttachments Attachments { get; }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

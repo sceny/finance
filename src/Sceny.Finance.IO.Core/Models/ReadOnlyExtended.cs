@@ -121,3 +121,22 @@ public readonly struct ReadOnlyExtended : IEnumerable<KeyValuePair<ReadOnlyStrin
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -12,3 +12,22 @@ public interface IBankName
     ReadOnlyString BankName { get; }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

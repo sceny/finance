@@ -7,4 +7,3 @@ namespace Sceny.Finance.IO;
 public interface IProperties
 {
 }
-

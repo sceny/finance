@@ -41,3 +41,22 @@ public readonly struct Attachment
     public int Size => Data.Length;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

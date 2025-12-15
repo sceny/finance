@@ -18,3 +18,21 @@ public interface IPropertiesFactory<T> where T : struct, IProperties
     static abstract T FromSource<TSource>(TSource source) where TSource : struct, IProperties;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

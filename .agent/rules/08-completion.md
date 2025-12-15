@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+trigger: model_decision
 description: It should be applied any time and AI work is completed to indicate completion criteria and verification requirements
 ---
 # Task Completion Criteria
